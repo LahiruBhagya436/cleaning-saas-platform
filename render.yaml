@@ -1,0 +1,62 @@
+# Render Blueprint — deploys the Express/Prisma API as a free web service.
+# Database is NOT defined here on purpose: Render's free Postgres expires
+# after 30 days, so this project uses a free Neon Postgres instance instead
+# (see DEPLOYMENT.md). Just paste that connection string into DATABASE_URL
+# below after the service is created.
+#
+# To use: Render dashboard -> New -> Blueprint -> pick this repo -> Apply.
+
+services:
+  - type: web
+    name: cleaning-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: >
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @cleaning/api exec prisma generate &&
+      pnpm --filter @cleaning/api exec prisma migrate deploy &&
+      pnpm --filter @cleaning/api run build
+    startCommand: pnpm --filter @cleaning/api run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: WEB_URL
+        sync: false
+      - key: API_BASE_URL
+        sync: false
+      - key: PLATFORM_FEE_PERCENT
+        value: "2.5"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_FROM_NAME
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
