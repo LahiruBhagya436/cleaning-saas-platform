@@ -252,7 +252,7 @@ bookingRoutes.post('/', async (req: Request, res: Response, next: NextFunction) 
 bookingRoutes.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId },
+      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined },
       include: {
         property: true,
         staff: { select: { id: true, fullName: true, phone: true } },
@@ -278,7 +278,7 @@ bookingRoutes.patch('/:id', async (req: Request, res: Response, next: NextFuncti
     const body = schema.parse(req.body)
 
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId },
+      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined },
     })
     if (!booking) throw new AppError('NOT_FOUND', 'Booking not found', 404)
     if (['completed','cancelled'].includes(booking.status)) {
@@ -309,7 +309,7 @@ bookingRoutes.delete('/:id', async (req: Request, res: Response, next: NextFunct
   try {
     const { cancellationReason } = req.body
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId },
+      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined },
     })
     if (!booking) throw new AppError('NOT_FOUND', 'Booking not found', 404)
     if (booking.status === 'completed') {
@@ -335,7 +335,7 @@ bookingRoutes.delete('/:id', async (req: Request, res: Response, next: NextFunct
 bookingRoutes.post('/:id/complete', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, staffId: req.user!.userId, status: 'in_progress', companyId: req.user!.companyId },
+      where: { id: req.params.id, staffId: req.user!.userId, status: 'in_progress', companyId: req.user!.companyId ?? undefined },
     })
     if (!booking) throw new AppError('NOT_FOUND', 'Active booking not found', 404)
 

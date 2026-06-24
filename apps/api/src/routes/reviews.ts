@@ -9,7 +9,7 @@ reviewRoutes.post('/', authenticate, async (req: Request, res: Response, next: N
   try {
     const { bookingId, rating, comment } = req.body
     if (!bookingId || !rating) return res.status(400).json({ success: false, error: { code: 'MISSING_FIELDS', message: 'bookingId and rating are required' } })
-    const booking = await prisma.booking.findFirst({ where: { id: bookingId, userId: req.user!.userId, companyId: req.user!.companyId, status: 'completed' } })
+    const booking = await prisma.booking.findFirst({ where: { id: bookingId, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined, status: 'completed' } })
     if (!booking || !booking.staffId) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Completed booking not found' } })
     const review = await prisma.review.create({
       data: { bookingId, userId: req.user!.userId, staffId: booking.staffId, rating: Number(rating), comment },

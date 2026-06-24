@@ -17,7 +17,7 @@ const PLATFORM_FEE_PERCENT = Number(process.env.PLATFORM_FEE_PERCENT ?? '2.5')
 invoiceRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const invoices = await prisma.invoice.findMany({
-      where:   { companyId: req.user!.companyId, booking: { userId: req.user!.userId } },
+      where:   { companyId: req.user!.companyId ?? undefined, booking: { userId: req.user!.userId } },
       include: { rutClaim: true },
       orderBy: { createdAt: 'desc' },
     })
@@ -28,7 +28,7 @@ invoiceRoutes.get('/', async (req: Request, res: Response, next: NextFunction) =
 invoiceRoutes.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const invoice = await prisma.invoice.findFirst({
-      where:   { id: req.params.id, companyId: req.user!.companyId, booking: { userId: req.user!.userId } },
+      where:   { id: req.params.id, companyId: req.user!.companyId ?? undefined, booking: { userId: req.user!.userId } },
       include: { rutClaim: true, booking: { include: { property: true } } },
     })
     if (!invoice) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } })
@@ -41,7 +41,7 @@ invoiceRoutes.get('/:id', async (req: Request, res: Response, next: NextFunction
 invoiceRoutes.post('/:id/checkout', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const invoice = await prisma.invoice.findFirst({
-      where:   { id: req.params.id, companyId: req.user!.companyId, booking: { userId: req.user!.userId } },
+      where:   { id: req.params.id, companyId: req.user!.companyId ?? undefined, booking: { userId: req.user!.userId } },
       include: { booking: { include: { property: true, items: { include: { service: true } } } } },
     })
     if (!invoice) throw new AppError('NOT_FOUND', 'Invoice not found', 404)
@@ -103,7 +103,7 @@ invoiceRoutes.post('/:id/confirm', async (req: Request, res: Response, next: Nex
     if (!sessionId) throw new AppError('VALIDATION_ERROR', 'sessionId is required', 422)
 
     const invoice = await prisma.invoice.findFirst({
-      where: { id: req.params.id, companyId: req.user!.companyId, booking: { userId: req.user!.userId } },
+      where: { id: req.params.id, companyId: req.user!.companyId ?? undefined, booking: { userId: req.user!.userId } },
     })
     if (!invoice) throw new AppError('NOT_FOUND', 'Invoice not found', 404)
 
