@@ -39,11 +39,11 @@ CREATE TABLE IF NOT EXISTS "companies" (
 -- 3. Seed the default tenant (your existing business) -------------------
 INSERT INTO "companies" ("id", "name", "slug", "contactEmail", "subscriptionTier", "subscriptionStatus", "isActive")
 SELECT gen_random_uuid()::text, 'Stockholm Cleaning Co.', 'stockholm-cleaning',
-       (SELECT email FROM users WHERE role IN ('admin','superadmin') ORDER BY "createdAt" ASC LIMIT 1),
+       COALESCE((SELECT email FROM users WHERE role IN ('admin','superadmin') ORDER BY "createdAt" ASC LIMIT 1), 'hello@stockholmcleaning.se'),
        'professional', 'active', true
 WHERE NOT EXISTS (SELECT 1 FROM "companies" WHERE "slug" = 'stockholm-cleaning');
 
--- fallback contact email if no admin user exists yet
+-- fallback contact email if it's somehow still null
 UPDATE "companies" SET "contactEmail" = 'hello@stockholmcleaning.se'
 WHERE "slug" = 'stockholm-cleaning' AND "contactEmail" IS NULL;
 
@@ -94,7 +94,7 @@ END $$;
 
 DO $$ BEGIN
   ALTER TABLE "services" ADD CONSTRAINT "services_companyId_name_key" UNIQUE ("companyId", "name");
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+EXCEPTION WHEN duplicate_object THEN NULL; WHEN duplicate_table THEN NULL; END $$;
 
 -- 6. bookings.companyId (required) ----------------------------------------
 ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "companyId" TEXT;
@@ -145,7 +145,7 @@ END $$;
 
 DO $$ BEGIN
   ALTER TABLE "invoices" ADD CONSTRAINT "invoices_companyId_invoiceNumber_key" UNIQUE ("companyId", "invoiceNumber");
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+EXCEPTION WHEN duplicate_object THEN NULL; WHEN duplicate_table THEN NULL; END $$;
 
 COMMIT;
 
