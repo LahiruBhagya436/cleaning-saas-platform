@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Leaf } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { formatSEK } from '@/lib/utils'
 
 interface Service {

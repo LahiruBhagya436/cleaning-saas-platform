@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { format, addDays, startOfDay, isBefore, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns'
+import { format, startOfDay, isBefore, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { bookingsApi } from '@/lib/api'
-import { formatSEK, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { BookingData } from '@/app/book/page'
 
 interface Slot { startTime: string; endTime: string; available: boolean; staffCount: number }

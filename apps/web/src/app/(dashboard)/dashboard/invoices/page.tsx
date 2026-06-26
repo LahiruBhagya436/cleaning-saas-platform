@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import {
-  FileText, Download, ExternalLink,
+  FileText, Download,
   Loader2, CheckCircle, Clock, AlertCircle, CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'

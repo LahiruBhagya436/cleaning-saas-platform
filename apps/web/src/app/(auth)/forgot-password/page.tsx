@@ -9,7 +9,6 @@ import { ArrowLeft, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui/index'
 import { authApi } from '@/lib/api'
-import { toast } from 'sonner'
 
 const schema = z.object({
   email: z.string().email('Ange en giltig e-postadress'),

@@ -10,7 +10,7 @@ import {
   FileText, Star, X, Loader2, CheckCircle
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { bookingsApi, invoicesApi, reviewsApi } from '@/lib/api'
+import { bookingsApi, reviewsApi } from '@/lib/api'
 import { formatSEK, BOOKING_STATUS_LABELS } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/dashboard/Badge'

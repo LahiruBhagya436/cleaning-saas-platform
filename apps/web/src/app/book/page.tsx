@@ -49,7 +49,7 @@ const STEPS = ['Tjänst', 'Adress', 'Datum & tid', 'Bekräfta']
 
 export default function BookPage() {
   const router         = useRouter()
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const [step, setStep]           = useState(0)
   const [data, setData]           = useState<BookingData>(INITIAL)
   const [booking, setBooking]     = useState<any>(null)
