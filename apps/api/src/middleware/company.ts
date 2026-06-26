@@ -3,8 +3,7 @@ import { prisma } from '../lib/prisma'
 import { AppError } from './errorHandler'
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace -- required by Express's own
-  // type-augmentation pattern; there is no ES2015-module equivalent for this.
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- required by Express's own type-augmentation pattern; there is no ES2015-module equivalent for this
   namespace Express {
     interface Request {
       companyId?: string
