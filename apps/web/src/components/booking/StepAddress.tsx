@@ -43,7 +43,10 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
         setProperties(res.data ?? [])
         if (res.data?.length === 0) setShowForm(true)
       })
-      .catch(() => setShowForm(true))
+      .catch((err) => {
+        console.error('Failed to load properties:', err)
+        setShowForm(true)
+      })
       .finally(() => setLoading(false))
   }, [session])
 

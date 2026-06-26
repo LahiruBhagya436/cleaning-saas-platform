@@ -6,7 +6,7 @@ Each company gets its own customers, staff, bookings, invoicing, and
 RUT-avdrag (Swedish tax deduction) handling, fully isolated from every other
 company on the platform.
 
-**Live demo:** _add your Vercel URL here once deployed — see [DEPLOYMENT.md](./DEPLOYMENT.md)_
+**Live demo:** https://cleaning-saas-platform-web.vercel.app
 
 ---
 
@@ -91,6 +91,23 @@ pnpm db:migrate
 pnpm db:seed
 pnpm dev
 ```
+
+## Testing & CI
+
+```bash
+pnpm test     # API unit tests (Jest + Supertest), run per-package via Turborepo
+pnpm lint     # ESLint across both apps
+pnpm build    # type-checks and builds both apps
+```
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs lint, tests, and
+a full build against a real Postgres service container on every push and
+pull request to `main`.
+
+Test coverage currently focuses on the multi-tenant resolution logic
+(`resolveCompany`) — including a regression suite for a real production bug
+where the API's own PaaS hostname (`*.onrender.com`) was mistakenly parsed as
+a tenant subdomain — and the RUT personnummer validator.
 
 ## Deploying
 

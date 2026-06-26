@@ -33,14 +33,17 @@ export async function resolveCompany(req: Request, _res: Response, next: NextFun
     let slug = headerSlug || bodySlug
 
     if (!slug) {
-      const host = req.headers.host ?? ''
+      // Strip the port (e.g. "localhost:4000" -> "localhost") before matching,
+      // otherwise a local dev request with a port in the Host header slips
+      // past the "localhost" / IP checks below and gets misread as a slug.
+      const host = (req.headers.host ?? '').split(':')[0]
       // Infra/platform hosts (PaaS default domains, IPs, localhost) are never
       // tenant subdomains — treating them as one breaks single-tenant deployments
       // hosted directly on a provider's *.onrender.com / *.vercel.app domain.
       const isInfraHost =
         /\.(onrender\.com|render\.com|vercel\.app|herokuapp\.com|railway\.app|fly\.dev|run\.app)$/i.test(host) ||
         host === 'localhost' ||
-        /^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/.test(host)
+        /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
       const sub = host.split('.')[0]
       if (!isInfraHost && sub && sub !== 'www' && sub !== 'localhost' && !sub.match(/^\d+$/)) {
         slug = sub

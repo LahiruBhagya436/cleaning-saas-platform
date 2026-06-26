@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { servicesApi } from '@/lib/api'
 import { formatSEK } from '@/lib/utils'
@@ -41,7 +42,11 @@ export function StepService({ data, update, onNext }: Props) {
   useEffect(() => {
     servicesApi.list()
       .then((res) => setServices(res.data))
-      .catch(() => setServices([]))
+      .catch((err) => {
+        console.error('Failed to load services:', err)
+        toast.error('Kunde inte hämta tjänster. Försök ladda om sidan.')
+        setServices([])
+      })
       .finally(() => setLoading(false))
   }, [])
 

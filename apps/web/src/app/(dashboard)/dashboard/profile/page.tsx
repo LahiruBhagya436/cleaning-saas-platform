@@ -70,7 +70,7 @@ export default function ProfilePage() {
     // already on file (we never get the plaintext value back — only a flag).
     usersApi.me()
       .then((res) => setHasPersonnummer(res.data.hasPersonnummer))
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load user profile:', err))
   }, [session])
 
   const onProfileSave = async (data: ProfileForm) => {
