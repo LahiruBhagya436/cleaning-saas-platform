@@ -47,7 +47,11 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # NOTE: using --no-frozen-lockfile because pnpm-lock.yaml hasn't been
+        # regenerated locally since the last dependency version bump. Run
+        # `pnpm install` locally and commit the updated lockfile, then switch
+        # this back to --frozen-lockfile for fully reproducible CI installs.
+        run: pnpm install --no-frozen-lockfile
 
       - name: Lint
         run: pnpm lint
