@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { Suspense, useEffect, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { CreditCard, ExternalLink, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,14 @@ import { stripeConnectApi } from '@/lib/api'
 import { toast } from 'sonner'
 
 export default function PaymentsSettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <PaymentsSettingsContent />
+    </Suspense>
+  )
+}
+
+function PaymentsSettingsContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<any>(null)
   const [loading, setLoading] = useState(true)

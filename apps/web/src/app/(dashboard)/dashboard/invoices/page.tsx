@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
@@ -24,6 +24,14 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }>
 }
 
 export default function InvoicesPage() {
+  return (
+    <Suspense fallback={null}>
+      <InvoicesPageContent />
+    </Suspense>
+  )
+}
+
+function InvoicesPageContent() {
   const [invoices, setInvoices] = useState<any[]>([])
   const [loading,  setLoading]  = useState(true)
   const [selected, setSelected] = useState<any>(null)

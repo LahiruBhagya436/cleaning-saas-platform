@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { invoicesApi } from '@/lib/api'
@@ -8,6 +8,14 @@ import { formatSEK } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 export default function InvoicePaymentSuccessPage() {
+  return (
+    <Suspense fallback={null}>
+      <InvoicePaymentSuccessContent />
+    </Suspense>
+  )
+}
+
+function InvoicePaymentSuccessContent() {
   const params = useParams<{ id: string }>()
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
