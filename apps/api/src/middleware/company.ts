@@ -50,4 +50,20 @@ export async function resolveCompany(req: Request, _res: Response, next: NextFun
     if (slug) {
       const company = await prisma.company.findUnique({ where: { slug } })
       if (!company) throw new AppError('COMPANY_NOT_FOUND', `No company found for "${slug}"`, 404)
-      if (!company.isActive) throw new AppError('COMPANY_INACTIVE', 'This comp
+      if (!company.isActive) throw new AppError('COMPANY_INACTIVE', 'This company account is inactive', 403)
+      req.companyId = company.id
+      return next()
+    }
+
+    // Dev/back-compat fallback: single-tenant deployments
+    const companies = await prisma.company.findMany({ select: { id: true }, take: 2 })
+    if (companies.length === 1) {
+      req.companyId = companies[0].id
+      return next()
+    }
+
+    throw new AppError('COMPANY_REQUIRED', 'Unable to determine which company this request belongs to', 400)
+  } catch (err) {
+    next(err)
+  }
+}
