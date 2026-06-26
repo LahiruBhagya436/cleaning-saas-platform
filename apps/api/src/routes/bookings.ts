@@ -145,16 +145,6 @@ bookingRoutes.post('/', async (req: Request, res: Response, next: NextFunction) 
     const scheduledAt = new Date(body.scheduledAt)
     const estimatedEndAt = new Date(scheduledAt.getTime() + body.durationMinutes * 60000)
 
-    const conflict = await prisma.booking.findFirst({
-      where: {
-        companyId,
-        status: { notIn: ['cancelled'] },
-        scheduledAt: { lt: estimatedEndAt },
-        estimatedEndAt: { gt: scheduledAt },
-        staff: { isNot: null },
-      },
-    })
-
     // Find an available staff member (same company only)
     const availableStaff = await prisma.user.findFirst({
       where: {

@@ -71,7 +71,7 @@ rutClaimRoutes.get('/', async (req: Request, res: Response, next: NextFunction) 
     res.json({
       success: true,
       data: {
-        claims,
+        claims: data,
         missingPersonnummer: missing.map((inv) => ({
           invoiceId:     inv.id,
           invoiceNumber: inv.invoiceNumber,

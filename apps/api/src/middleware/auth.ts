@@ -11,9 +11,9 @@ export interface AuthPayload {
   companyId: string | null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace -- required by Express's own
-// type-augmentation pattern; there is no ES2015-module equivalent for this.
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- required by Express's own
+  // type-augmentation pattern; there is no ES2015-module equivalent for this.
   namespace Express {
     interface Request {
       user?: AuthPayload
