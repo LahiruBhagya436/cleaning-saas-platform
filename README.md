@@ -65,6 +65,11 @@ Being upfront about this matters more than pretending it's finished:
   (tiers exist as a data field; charging for them monthly isn't wired up).
 - No S3 file storage or Fortnox accounting integration — both are scaffolded
   in the schema/env but not implemented.
+- No dedicated staff UI — staff accounts log in and land on the same
+  self-serve dashboard as customers. The API already has a working
+  `POST /bookings/:id/complete` endpoint for staff to mark a job done, but
+  there's no frontend view yet for "my assigned jobs today" or completing
+  them. Worth building next if the staff role needs to be demoable.
 
 ## Architecture
 
