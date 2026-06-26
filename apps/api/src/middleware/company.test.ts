@@ -1,3 +1,4 @@
+import { Request, Response } from 'express'
 import { resolveCompany } from './company'
 import { prisma } from '../lib/prisma'
 
@@ -10,16 +11,18 @@ jest.mock('../lib/prisma', () => ({
   },
 }))
 
-function mockReq(overrides: Partial<{ host: string; user: any; headers: Record<string, string> }> = {}) {
+type MockUser = { companyId: string }
+
+function mockReq(overrides: Partial<{ host: string; user: MockUser; headers: Record<string, string> }> = {}) {
   return {
     headers: { host: overrides.host ?? 'localhost:4000', ...(overrides.headers ?? {}) },
     user: overrides.user,
     body: {},
-  } as any
+  } as unknown as Request
 }
 
 function mockRes() {
-  return {} as any
+  return {} as Response
 }
 
 describe('resolveCompany', () => {
@@ -39,7 +42,7 @@ describe('resolveCompany', () => {
   })
 
   it('resolves via X-Company-Slug header', async () => {
-    ;(prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: 'company-2', isActive: true })
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: 'company-2', isActive: true })
     const req = mockReq({ headers: { 'x-company-slug': 'acme' } })
     const next = jest.fn()
 
@@ -51,7 +54,7 @@ describe('resolveCompany', () => {
   })
 
   it('resolves via real tenant subdomain', async () => {
-    ;(prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: 'company-3', isActive: true })
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: 'company-3', isActive: true })
     const req = mockReq({ host: 'acme.platform.se' })
     const next = jest.fn()
 
@@ -75,7 +78,7 @@ describe('resolveCompany', () => {
     '127.0.0.1:4000',
     'localhost',
   ])('treats PaaS/infra host "%s" as no slug and falls back to single-tenant lookup', async (host) => {
-    ;(prisma.company.findMany as jest.Mock).mockResolvedValue([{ id: 'only-company' }])
+    (prisma.company.findMany as jest.Mock).mockResolvedValue([{ id: 'only-company' }])
     const req = mockReq({ host })
     const next = jest.fn()
 
@@ -87,7 +90,7 @@ describe('resolveCompany', () => {
   })
 
   it('falls back to the single existing company when no slug can be determined', async () => {
-    ;(prisma.company.findMany as jest.Mock).mockResolvedValue([{ id: 'only-company' }])
+    (prisma.company.findMany as jest.Mock).mockResolvedValue([{ id: 'only-company' }])
     const req = mockReq({ host: 'localhost:4000' })
     const next = jest.fn()
 
@@ -98,7 +101,7 @@ describe('resolveCompany', () => {
   })
 
   it('errors with COMPANY_REQUIRED when multiple companies exist and no slug is given', async () => {
-    ;(prisma.company.findMany as jest.Mock).mockResolvedValue([{ id: 'a' }, { id: 'b' }])
+    (prisma.company.findMany as jest.Mock).mockResolvedValue([{ id: 'a' }, { id: 'b' }])
     const req = mockReq({ host: 'localhost:4000' })
     const next = jest.fn()
 
@@ -108,7 +111,7 @@ describe('resolveCompany', () => {
   })
 
   it('errors with COMPANY_NOT_FOUND for an unknown slug', async () => {
-    ;(prisma.company.findUnique as jest.Mock).mockResolvedValue(null)
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue(null)
     const req = mockReq({ headers: { 'x-company-slug': 'ghost' } })
     const next = jest.fn()
 
@@ -118,7 +121,7 @@ describe('resolveCompany', () => {
   })
 
   it('errors with COMPANY_INACTIVE for a disabled company', async () => {
-    ;(prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: 'company-4', isActive: false })
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: 'company-4', isActive: false })
     const req = mockReq({ headers: { 'x-company-slug': 'acme' } })
     const next = jest.fn()
 

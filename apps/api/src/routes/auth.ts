@@ -356,7 +356,7 @@ authRoutes.post('/reset-password', async (req: Request, res: Response, next: Nex
 
     res.status(204).send()
   } catch (err) {
-    if ((err as any).name === 'JsonWebTokenError') {
+    if ((err as { name?: string }).name === 'JsonWebTokenError') {
       return next(new AppError('INVALID_TOKEN', 'Invalid or expired reset token', 400))
     }
     next(err)

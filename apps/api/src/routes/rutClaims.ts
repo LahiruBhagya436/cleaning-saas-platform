@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { RutClaimStatus } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { authenticate, requireAdmin } from '../middleware/auth'
 import { AppError } from '../middleware/errorHandler'
@@ -21,7 +22,7 @@ rutClaimRoutes.get('/', async (req: Request, res: Response, next: NextFunction) 
     const claims = await prisma.rutClaim.findMany({
       where: {
         invoice: { companyId },
-        ...(status ? { claimStatus: status as any } : {}),
+        ...(status ? { claimStatus: status as RutClaimStatus } : {}),
       },
       include: {
         invoice: {

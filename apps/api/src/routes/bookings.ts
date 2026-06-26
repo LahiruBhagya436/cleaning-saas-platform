@@ -1,8 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { Prisma, BookingStatus } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../middleware/errorHandler'
-import { authenticate, requireAdmin } from '../middleware/auth'
+import { authenticate } from '../middleware/auth'
 import { calculateBookingPrice } from '../services/pricing'
 import { generateChecklist } from '../services/checklist'
 import { sendNotification } from '../services/notifications'
@@ -96,8 +97,8 @@ bookingRoutes.get('/', async (req: Request, res: Response, next: NextFunction) =
     const { status, limit = '20', after } = req.query
     const take = Math.min(Number(limit), 50)
 
-    const where: any = { userId: req.user!.userId, companyId: req.user!.companyId }
-    if (status) where.status = status
+    const where: Prisma.BookingWhereInput = { userId: req.user!.userId, companyId: req.user!.companyId }
+    if (status) where.status = status as BookingStatus
     if (after) where.id = { gt: after as string }
 
     const bookings = await prisma.booking.findMany({
@@ -285,7 +286,9 @@ bookingRoutes.patch('/:id', async (req: Request, res: Response, next: NextFuncti
       throw new AppError('INVALID_STATUS', 'Cannot modify a completed or cancelled booking', 400)
     }
 
-    const updateData: any = { ...body }
+    const updateData: Prisma.BookingUpdateInput = {
+      ...(body.notes !== undefined ? { notes: body.notes } : {}),
+    }
     if (body.scheduledAt) {
       updateData.scheduledAt = new Date(body.scheduledAt)
       updateData.estimatedEndAt = new Date(

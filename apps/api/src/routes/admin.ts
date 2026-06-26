@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { Prisma, BookingStatus } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../middleware/errorHandler'
 import { authenticate, requireAdmin } from '../middleware/auth'
@@ -37,8 +38,8 @@ adminRoutes.get('/dashboard', async (req: Request, res: Response, next: NextFunc
 adminRoutes.get('/bookings', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status, limit = '20' } = req.query
-    const where: any = { companyId: req.user!.companyId }
-    if (status) where.status = status
+    const where: Prisma.BookingWhereInput = { companyId: req.user!.companyId }
+    if (status) where.status = status as BookingStatus
     const bookings = await prisma.booking.findMany({
       where, take: Math.min(Number(limit), 100), orderBy: { scheduledAt: 'desc' },
       include: { customer: { select: { fullName: true, email: true } }, staff: { select: { id: true, fullName: true } }, property: true },

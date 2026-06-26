@@ -38,14 +38,16 @@ export const errorHandler = (
     })
   }
 
-  if ((err as any).code === 'P2002') {
+  const errorCode = (err as { code?: string }).code
+
+  if (errorCode === 'P2002') {
     return res.status(409).json({
       success: false,
       error: { code: 'ALREADY_EXISTS', message: 'Resource already exists' },
     })
   }
 
-  if ((err as any).code === 'P2025') {
+  if (errorCode === 'P2025') {
     return res.status(404).json({
       success: false,
       error: { code: 'NOT_FOUND', message: 'Resource not found' },
