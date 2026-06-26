@@ -38,7 +38,7 @@ adminRoutes.get('/dashboard', async (req: Request, res: Response, next: NextFunc
 adminRoutes.get('/bookings', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status, limit = '20' } = req.query
-    const where: Prisma.BookingWhereInput = { companyId: req.user!.companyId }
+    const where: Prisma.BookingWhereInput = { companyId: req.user!.companyId ?? undefined }
     if (status) where.status = status as BookingStatus
     const bookings = await prisma.booking.findMany({
       where, take: Math.min(Number(limit), 100), orderBy: { scheduledAt: 'desc' },

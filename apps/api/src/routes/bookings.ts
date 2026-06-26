@@ -97,7 +97,7 @@ bookingRoutes.get('/', async (req: Request, res: Response, next: NextFunction) =
     const { status, limit = '20', after } = req.query
     const take = Math.min(Number(limit), 50)
 
-    const where: Prisma.BookingWhereInput = { userId: req.user!.userId, companyId: req.user!.companyId }
+    const where: Prisma.BookingWhereInput = { userId: req.user!.userId, companyId: req.user!.companyId ?? undefined }
     if (status) where.status = status as BookingStatus
     if (after) where.id = { gt: after as string }
 
