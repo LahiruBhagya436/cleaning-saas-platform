@@ -68,8 +68,40 @@ const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
-      // Initial sign-in: store tokens + compute access-token expiry
+    async jwt({ token, user, account }) {
+      // Initial sign-in via Google: the Google provider only gives us the
+      // user's id/email/name from their Google profile — it never talks to
+      // our backend, so role/accessToken/refreshToken are missing. Exchange
+      // the verified Google identity for real backend tokens here (the
+      // backend finds-or-creates the user and returns the same shape /login
+      // does), so a Google sign-in ends up with a working role + API tokens
+      // just like a credentials sign-in.
+      if (user && account?.provider === 'google') {
+        try {
+          const { data } = await axios.post(
+            `${API_URL}/auth/oauth-google`,
+            { email: user.email, fullName: user.name, googleId: account.providerAccountId },
+            { headers: { 'x-internal-secret': process.env.INTERNAL_AUTH_SECRET } }
+          )
+          if (data.success) {
+            token.id                 = data.data.user.id
+            token.role               = data.data.user.role
+            token.accessToken        = data.data.accessToken
+            token.refreshToken       = data.data.refreshToken
+            token.accessTokenExpires = Date.now() + (data.data.expiresIn ?? 900) * 1000
+            return token
+          }
+        } catch {
+          // Backend link failed — fall through with no role/tokens. The
+          // role-gated layouts below now redirect rather than spin forever
+          // when role is missing, and API calls will correctly 401 instead
+          // of sending the literal string "undefined" as a bearer token.
+        }
+        token.error = 'OAuthBackendLinkError'
+        return token
+      }
+
+      // Initial sign-in via credentials: store tokens + compute expiry
       if (user) {
         token.id              = user.id
         token.role             = (user as any).role

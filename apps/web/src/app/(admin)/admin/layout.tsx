@@ -24,7 +24,7 @@ export default function AdminLayout({
       router.replace('/login?callbackUrl=/admin')
       return
     }
-    if (role && !ADMIN_ROLES.includes(role)) {
+    if (!ADMIN_ROLES.includes(role)) {
       router.replace('/dashboard')
     }
   }, [status, role, router])

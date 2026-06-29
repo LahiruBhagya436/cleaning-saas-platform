@@ -251,6 +251,87 @@ authRoutes.post('/login', async (req: Request, res: Response, next: NextFunction
   } catch (err) { next(err) }
 })
 
+// ── POST /auth/oauth-google ───────────────────────────────────────────────────
+// Called server-to-server by the Next.js app (NextAuth's `jwt` callback) right
+// after Google verifies the user — never called directly from the browser.
+// Google sign-in previously had no backend integration at all: the frontend
+// would set role/accessToken/refreshToken from `user`, but for the Google
+// provider that object never had them, so every Google-authenticated session
+// ended up with role=undefined and accessToken="undefined" — breaking the
+// admin/platform role gates (stuck on a loading spinner) and every subsequent
+// authenticated API call. This finds-or-creates the user by Google ID/email
+// and issues real backend tokens, the same way /login does.
+
+const oauthSchema = z.object({
+  email:     z.string().email(),
+  fullName:  z.string().min(1).max(200),
+  googleId:  z.string().min(1),
+})
+
+authRoutes.post('/oauth-google', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const internalSecret = req.header('x-internal-secret')
+    if (!internalSecret || internalSecret !== process.env.INTERNAL_AUTH_SECRET) {
+      throw new AppError('UNAUTHORIZED', 'Unauthorized', 401)
+    }
+
+    const body = oauthSchema.parse(req.body)
+
+    let user = await prisma.user.findUnique({ where: { googleId: body.googleId } })
+
+    if (!user) {
+      // Not linked yet — match by email so an existing password-based account
+      // gets linked instead of creating a duplicate user, then fall back to
+      // creating a brand-new (passwordless) customer account.
+      const existingByEmail = await prisma.user.findUnique({ where: { email: body.email } })
+      if (existingByEmail) {
+        if (!existingByEmail.isActive) throw new AppError('ACCOUNT_DISABLED', 'Account is disabled', 403)
+        user = await prisma.user.update({
+          where: { id: existingByEmail.id },
+          data: { googleId: body.googleId },
+        })
+      } else {
+        user = await prisma.user.create({
+          data: {
+            email:    body.email,
+            fullName: body.fullName,
+            googleId: body.googleId,
+            role:     'customer',
+          },
+        })
+        sendEmail({
+          to: user.email,
+          template: 'welcome',
+          data: { name: user.fullName },
+        }).catch(() => {})
+      }
+    } else if (!user.isActive) {
+      throw new AppError('ACCOUNT_DISABLED', 'Account is disabled', 403)
+    }
+
+    const payload = userToPayload(user)
+    const { accessToken, refreshToken } = issueTokens(payload)
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
+    })
+
+    res.json({
+      success: true,
+      data: {
+        user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role },
+        accessToken,
+        refreshToken,
+        expiresIn: 900,
+      },
+    })
+  } catch (err) { next(err) }
+})
+
 // ── POST /auth/refresh ────────────────────────────────────────────────────────
 
 authRoutes.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {

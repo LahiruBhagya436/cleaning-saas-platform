@@ -21,7 +21,7 @@ export default function PlatformLayout({
       router.replace('/login?callbackUrl=/platform')
       return
     }
-    if (role && role !== 'superadmin') {
+    if (role !== 'superadmin') {
       router.replace('/admin')
     }
   }, [status, role, router])
