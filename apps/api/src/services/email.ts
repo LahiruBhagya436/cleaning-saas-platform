@@ -101,6 +101,20 @@ function render(template: string, data: Record<string, any>): Rendered {
         `),
       }
 
+    case 'team_invite':
+      return {
+        subject: `Du har fått ett konto hos Stockholm Cleaning Co.`,
+        html: wrap('Välkommen till teamet', `
+          <p>Hej ${escapeHtml(data.name)},</p>
+          <p>Du har lagts till som <strong>${escapeHtml(data.role === 'coordinator' ? 'arbetsledare' : data.role === 'admin' ? 'administratör' : 'städare')}</strong> hos Stockholm Cleaning Co.</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr><td style="padding: 6px 0; color: #666;">E-post</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.email)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Tillfälligt lösenord</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.tempPassword)}</td></tr>
+          </table>
+          <p style="font-size: 13px; color: #666;">Logga in och byt lösenord så snart som möjligt.</p>
+        `),
+      }
+
     case 'payment_receipt':
       return {
         subject: `Betalningsbekräftelse — Faktura ${data.invoiceNumber}`,

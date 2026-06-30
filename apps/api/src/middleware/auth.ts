@@ -52,5 +52,26 @@ export const requireRole = (...roles: UserRole[]) => {
 }
 
 export const requireStaff    = requireRole('staff', 'coordinator', 'admin', 'superadmin')
-export const requireAdmin    = requireRole('coordinator', 'admin', 'superadmin')
+// Admin-only: was previously letting `coordinator` through too, which is wrong
+// for anything that creates/manages accounts (adding staff, etc.) — coordinators
+// ("supervisors") can be handed task assignment, never account management.
+export const requireAdmin    = requireRole('admin', 'superadmin')
+// Admin OR coordinator ("supervisor") — for assigning work to ground-level staff.
+export const requireSupervisor = requireRole('coordinator', 'admin', 'superadmin')
 export const requireSuperAdmin = requireRole('superadmin')
+
+// Only these two named platform-owner emails may create new ADMIN accounts for
+// a company (separate from the `superadmin` role check on the platform router —
+// this narrows it down to specific people, not just anyone with that role).
+const ADMIN_CREATOR_EMAILS = (process.env.ADMIN_CREATOR_EMAILS ?? '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean)
+
+export const requireAdminCreator = (req: Request, _res: Response, next: NextFunction) => {
+  if (!req.user) return next(new AppError('UNAUTHORIZED', 'Authentication required', 401))
+  if (!ADMIN_CREATOR_EMAILS.includes(req.user.email.toLowerCase())) {
+    return next(new AppError('FORBIDDEN', 'Only authorized platform owners can create admin accounts', 403))
+  }
+  next()
+}

@@ -162,7 +162,10 @@ export default function PlatformCompanyDetailPage() {
 
       {/* Users */}
       <div>
-        <h2 className="font-sans font-medium text-neutral-900 mb-3">Team ({users.length})</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-sans font-medium text-neutral-900">Team ({users.length})</h2>
+          <AddAdminButton companyId={id} adminCount={users.filter((u: any) => u.role === 'admin').length} onAdded={load} />
+        </div>
         <div className="bg-white border border-neutral-200 rounded-xl divide-y divide-neutral-50">
           {users.map((u: any) => (
             <div key={u.id} className="px-4 py-3 flex items-center justify-between">
@@ -178,6 +181,82 @@ export default function PlatformCompanyDetailPage() {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── Add admin (platform-owner-only — server enforces the 2-email allowlist
+// and the 5-admin-per-company cap; this UI just exposes the action and
+// surfaces whatever the API decides, including a clean 403/409 message). ────
+
+function AddAdminButton({ companyId, adminCount, onAdded }: { companyId: string; adminCount: number; onAdded: () => void }) {
+  const [open,     setOpen]     = useState(false)
+  const [fullName, setFullName] = useState('')
+  const [email,    setEmail]    = useState('')
+  const [phone,    setPhone]    = useState('')
+  const [saving,   setSaving]   = useState(false)
+
+  const atLimit = adminCount >= 5
+
+  const submit = async () => {
+    if (!fullName.trim() || !email.trim()) {
+      toast.error('Name and email are required.')
+      return
+    }
+    setSaving(true)
+    try {
+      await platformApi.addCompanyAdmin(companyId, { fullName: fullName.trim(), email: email.trim(), phone: phone.trim() || undefined })
+      toast.success('Admin created — login details emailed.')
+      setOpen(false)
+      setFullName(''); setEmail(''); setPhone('')
+      onAdded()
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Could not create admin.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        disabled={atLimit}
+        className="text-xs font-medium px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        title={atLimit ? 'This company already has the maximum of 5 admins' : undefined}
+      >
+        {atLimit ? 'Admin limit reached (5/5)' : '+ Add admin'}
+      </button>
+      {open && !atLimit && (
+        <div className="absolute right-0 mt-2 w-72 bg-white border border-neutral-200 rounded-xl shadow-lg p-4 space-y-3 z-10">
+          <input
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Full name"
+            className="w-full text-sm border border-neutral-200 rounded-lg px-3 py-2"
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full text-sm border border-neutral-200 rounded-lg px-3 py-2"
+          />
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Phone (optional)"
+            className="w-full text-sm border border-neutral-200 rounded-lg px-3 py-2"
+          />
+          <button
+            onClick={submit}
+            disabled={saving}
+            className="w-full text-sm font-medium px-3 py-2 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50"
+          >
+            {saving ? 'Creating…' : 'Create admin'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

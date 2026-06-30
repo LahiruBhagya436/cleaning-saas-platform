@@ -202,6 +202,16 @@ export const adminApi = {
 
   deleteStaffSchedule: (staffId: string, scheduleId: string) =>
     api.delete(`/admin/staff/${staffId}/schedule/${scheduleId}`),
+
+  // Team management (admin-only): coordinators ("supervisors") + cleaners
+  team: () =>
+    api.get<any, ApiResponse<any[]>>('/admin/team'),
+
+  addTeamMember: (data: { email: string; fullName: string; phone?: string; role: 'staff' | 'coordinator' }) =>
+    api.post<any, ApiResponse<any>>('/admin/team', data),
+
+  updateTeamMember: (id: string, data: { isActive?: boolean; role?: 'staff' | 'coordinator'; fullName?: string; phone?: string }) =>
+    api.patch<any, ApiResponse<any>>(`/admin/team/${id}`, data),
 }
 
 // ── Stripe Connect (per-company payment onboarding) ───────────────────────────
@@ -249,6 +259,11 @@ export const platformApi = {
 
   companyStripe: (id: string) =>
     api.get<any, ApiResponse<any>>(`/platform/companies/${id}/stripe`),
+
+  // Create a new admin account for a company. Gated server-side to the two
+  // named platform-owner emails (ADMIN_CREATOR_EMAILS) + a max-5-per-company cap.
+  addCompanyAdmin: (companyId: string, data: { email: string; fullName: string; phone?: string }) =>
+    api.post<any, ApiResponse<any>>(`/platform/companies/${companyId}/admins`, data),
 }
 
 // ── RUT claims (admin-facing) ──────────────────────────────────────────────────

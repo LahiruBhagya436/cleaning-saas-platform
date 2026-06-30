@@ -1,8 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { prisma } from '../lib/prisma'
 import { stripe } from '../lib/stripe'
 import { AppError } from '../middleware/errorHandler'
-import { authenticate, requireSuperAdmin } from '../middleware/auth'
+import { authenticate, requireSuperAdmin, requireAdminCreator } from '../middleware/auth'
+import { sendEmail } from '../services/email'
+
+const MAX_ADMINS_PER_COMPANY = 5
 
 // Platform-owner-only routes: cross-company visibility for the SaaS operator
 // (Lahiru), not for any individual cleaning company's admins. Gated by
@@ -168,6 +174,61 @@ platformRoutes.get('/companies/:id/stripe', async (req: Request, res: Response, 
         payoutsEnabled: account.payouts_enabled,
         detailsSubmitted: account.details_submitted,
       },
+    })
+  } catch (err) { next(err) }
+})
+
+// ── POST /platform/companies/:id/admins — create a new company admin ────────
+// Gated twice: requireSuperAdmin (role check, applied router-wide above) AND
+// requireAdminCreator (email allowlist via ADMIN_CREATOR_EMAILS — only the two
+// named platform owners). A company can never have more than
+// MAX_ADMINS_PER_COMPANY admin accounts. Once an admin exists, THEY add
+// coordinators/cleaners normally via POST /admin/team — this route is only
+// for minting new admins, which is intentionally a narrower, rarer action.
+
+const createCompanyAdminSchema = z.object({
+  email:    z.string().email(),
+  fullName: z.string().min(2).max(200),
+  phone:    z.string().optional(),
+})
+
+platformRoutes.post('/companies/:id/admins', requireAdminCreator, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const company = await prisma.company.findUnique({ where: { id: req.params.id } })
+    if (!company) throw new AppError('NOT_FOUND', 'Company not found', 404)
+
+    const adminCount = await prisma.user.count({ where: { companyId: company.id, role: 'admin' } })
+    if (adminCount >= MAX_ADMINS_PER_COMPANY) {
+      throw new AppError('ADMIN_LIMIT_REACHED', `This company already has the maximum of ${MAX_ADMINS_PER_COMPANY} admins`, 409)
+    }
+
+    const body = createCompanyAdminSchema.parse(req.body)
+    const existing = await prisma.user.findUnique({ where: { email: body.email } })
+    if (existing) throw new AppError('EMAIL_TAKEN', 'Email already registered', 409)
+
+    const tempPassword = crypto.randomBytes(9).toString('base64url')
+    const passwordHash = await bcrypt.hash(tempPassword, 12)
+
+    const user = await prisma.user.create({
+      data: {
+        companyId:    company.id,
+        email:        body.email,
+        fullName:     body.fullName,
+        phone:        body.phone,
+        role:         'admin',
+        passwordHash,
+      },
+    })
+
+    sendEmail({
+      to: user.email,
+      template: 'team_invite',
+      data: { name: user.fullName, email: user.email, tempPassword, role: 'admin' },
+    }).catch(() => {})
+
+    res.status(201).json({
+      success: true,
+      data: { id: user.id, email: user.email, fullName: user.fullName, role: user.role },
     })
   } catch (err) { next(err) }
 })

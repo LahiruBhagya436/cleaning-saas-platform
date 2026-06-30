@@ -1,17 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
-import { Loader2, Plus, X, CalendarDays, Briefcase } from 'lucide-react'
+import { Loader2, Plus, X, CalendarDays, Briefcase, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 
 export default function AdminWorkersPage() {
+  const { data: session } = useSession()
+  const role = (session?.user as any)?.role
+  const canManageTeam = role === 'admin' || role === 'superadmin' // coordinators can assign jobs, not add people
+
   const [workers, setWorkers] = useState<any[]>([])
   const [loading,  setLoading] = useState(true)
   const [openForm, setOpenForm] = useState<string | null>(null)
+  const [showAdd,  setShowAdd]  = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -37,12 +43,29 @@ export default function AdminWorkersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl text-neutral-900">Personal</h1>
-        <p className="text-sm text-neutral-500 mt-1">
-          Schema, arbetstimmar och tilldelade jobb per städare.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="font-display text-2xl text-neutral-900">Personal</h1>
+          <p className="text-sm text-neutral-500 mt-1">
+            Schema, arbetstimmar och tilldelade jobb per städare.
+          </p>
+        </div>
+        {canManageTeam && (
+          <Button size="sm" onClick={() => setShowAdd((v) => !v)}>
+            {showAdd ? <X size={14} /> : <UserPlus size={14} />}
+            {showAdd ? 'Stäng' : 'Lägg till städare / arbetsledare'}
+          </Button>
+        )}
       </div>
+
+      {canManageTeam && showAdd && (
+        <AddTeamMemberForm
+          onAdded={() => {
+            setShowAdd(false)
+            load()
+          }}
+        />
+      )}
 
       {workers.length === 0 ? (
         <div className="bg-white border border-dashed border-neutral-200 rounded-xl p-10 text-center text-sm text-neutral-500">
@@ -61,6 +84,138 @@ export default function AdminWorkersPage() {
           ))}
         </div>
       )}
+
+      {canManageTeam && <SupervisorList />}
+    </div>
+  )
+}
+
+// ── Add cleaner / supervisor form (admin-only) ────────────────────────────────
+
+function AddTeamMemberForm({ onAdded }: { onAdded: () => void }) {
+  const [fullName, setFullName] = useState('')
+  const [email,    setEmail]    = useState('')
+  const [phone,    setPhone]    = useState('')
+  const [role,     setRole]     = useState<'staff' | 'coordinator'>('staff')
+  const [saving,   setSaving]   = useState(false)
+
+  const submit = async () => {
+    if (!fullName.trim() || !email.trim()) {
+      toast.error('Namn och e-post krävs.')
+      return
+    }
+    setSaving(true)
+    try {
+      await adminApi.addTeamMember({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() || undefined, role })
+      toast.success(role === 'coordinator' ? 'Arbetsledare tillagd. Inloggningsuppgifter skickade via e-post.' : 'Städare tillagd. Inloggningsuppgifter skickade via e-post.')
+      onAdded()
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Kunde inte lägga till personen.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="bg-white border border-neutral-200 rounded-xl p-5 space-y-4">
+      <p className="text-sm font-medium text-neutral-900">Lägg till städare eller arbetsledare</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-neutral-500 mb-1">Namn</label>
+          <input
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full text-sm border border-neutral-200 rounded-lg px-3 py-2"
+            placeholder="Anna Andersson"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-neutral-500 mb-1">E-post</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full text-sm border border-neutral-200 rounded-lg px-3 py-2"
+            placeholder="anna@exempel.se"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-neutral-500 mb-1">Telefon (valfritt)</label>
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full text-sm border border-neutral-200 rounded-lg px-3 py-2"
+            placeholder="07X-XXX XX XX"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-neutral-500 mb-1">Roll</label>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setRole('staff')}
+              className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                role === 'staff' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+              }`}
+            >
+              Städare
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole('coordinator')}
+              className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                role === 'coordinator' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+              }`}
+            >
+              Arbetsledare
+            </button>
+          </div>
+        </div>
+      </div>
+      <Button size="sm" onClick={submit} loading={saving}>
+        Lägg till
+      </Button>
+    </div>
+  )
+}
+
+// ── Supervisor ("coordinator") roster — read-only list, no schedules ─────────
+
+function SupervisorList() {
+  const [coordinators, setCoordinators] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await adminApi.team()
+        setCoordinators((res.data ?? []).filter((m: any) => m.role === 'coordinator'))
+      } catch {
+        // silent — this section is supplementary
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [])
+
+  if (loading || coordinators.length === 0) return null
+
+  return (
+    <div>
+      <h2 className="font-sans font-medium text-neutral-900 mb-3">Arbetsledare ({coordinators.length})</h2>
+      <div className="bg-white border border-neutral-200 rounded-xl divide-y divide-neutral-50">
+        {coordinators.map((c) => (
+          <div key={c.id} className="px-4 py-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-900">{c.fullName}</p>
+              <p className="text-xs text-neutral-400">{c.email}{c.phone ? ` · ${c.phone}` : ''}</p>
+            </div>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${c.isActive ? 'bg-teal-50 text-teal-700' : 'bg-neutral-100 text-neutral-400'}`}>
+              {c.isActive ? 'Aktiv' : 'Inaktiv'}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

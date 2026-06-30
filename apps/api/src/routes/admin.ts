@@ -1,12 +1,20 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { Prisma, BookingStatus } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../middleware/errorHandler'
-import { authenticate, requireAdmin } from '../middleware/auth'
+import { authenticate, requireAdmin, requireSupervisor } from '../middleware/auth'
+import { sendEmail } from '../services/email'
 
 export const adminRoutes = Router()
-adminRoutes.use(authenticate, requireAdmin)
+// Only `authenticate` here — each route below picks the right gate itself:
+// requireAdmin (account management) vs requireSupervisor (admin OR coordinator,
+// for day-to-day task assignment). Previously this whole router was gated by
+// a requireAdmin that secretly let coordinators through everywhere, including
+// account-management routes that should be admin-only.
+adminRoutes.use(authenticate)
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -16,7 +24,7 @@ function hoursBetween(startTime: string, endTime: string): number {
   return (eh * 60 + em - (sh * 60 + sm)) / 60
 }
 
-adminRoutes.get('/dashboard', async (req: Request, res: Response, next: NextFunction) => {
+adminRoutes.get('/dashboard', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const companyId = req.user!.companyId!
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
@@ -35,7 +43,7 @@ adminRoutes.get('/dashboard', async (req: Request, res: Response, next: NextFunc
   } catch (err) { next(err) }
 })
 
-adminRoutes.get('/bookings', async (req: Request, res: Response, next: NextFunction) => {
+adminRoutes.get('/bookings', requireSupervisor, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status, limit = '20' } = req.query
     const where: Prisma.BookingWhereInput = { companyId: req.user!.companyId ?? undefined }
@@ -53,7 +61,9 @@ adminRoutes.get('/bookings', async (req: Request, res: Response, next: NextFunct
 
 const assignSchema = z.object({ staffId: z.string().uuid().nullable() })
 
-adminRoutes.patch('/bookings/:id/assign', async (req: Request, res: Response, next: NextFunction) => {
+// Admin OR coordinator ("supervisor") may assign work to ground-level staff —
+// this is the one place coordinators get write access in this router.
+adminRoutes.patch('/bookings/:id/assign', requireSupervisor, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { staffId } = assignSchema.parse(req.body)
     const companyId = req.user!.companyId!
@@ -102,7 +112,7 @@ adminRoutes.patch('/bookings/:id/assign', async (req: Request, res: Response, ne
 // ── GET /admin/staff ───────────────────────────────────────────────────────────
 // All workers with their upcoming schedule, total scheduled hours, and job counts.
 
-adminRoutes.get('/staff', async (req: Request, res: Response, next: NextFunction) => {
+adminRoutes.get('/staff', requireSupervisor, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const today = new Date(); today.setHours(0, 0, 0, 0)
     const horizon = new Date(today); horizon.setDate(horizon.getDate() + 30)
@@ -158,7 +168,7 @@ const scheduleSchema = z.object({
   notes:       z.string().max(500).optional(),
 })
 
-adminRoutes.post('/staff/:id/schedule', async (req: Request, res: Response, next: NextFunction) => {
+adminRoutes.post('/staff/:id/schedule', requireSupervisor, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = scheduleSchema.parse(req.body)
 
@@ -186,7 +196,7 @@ adminRoutes.post('/staff/:id/schedule', async (req: Request, res: Response, next
 
 // ── DELETE /admin/staff/:id/schedule/:scheduleId ──────────────────────────────
 
-adminRoutes.delete('/staff/:id/schedule/:scheduleId', async (req: Request, res: Response, next: NextFunction) => {
+adminRoutes.delete('/staff/:id/schedule/:scheduleId', requireSupervisor, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const schedule = await prisma.staffSchedule.findFirst({
       where: { id: req.params.scheduleId, staffId: req.params.id, staff: { companyId: req.user!.companyId } },
@@ -194,5 +204,101 @@ adminRoutes.delete('/staff/:id/schedule/:scheduleId', async (req: Request, res: 
     if (!schedule) throw new AppError('NOT_FOUND', 'Schedule entry not found', 404)
     await prisma.staffSchedule.delete({ where: { id: schedule.id } })
     res.status(204).send()
+  } catch (err) { next(err) }
+})
+
+// ── GET /admin/team — list coordinators + cleaners for this company ──────────
+// (Separate from /admin/staff, which only returns `staff` plus their
+// schedule/job stats — this is the plain account-management list, covering
+// both roles a company admin is allowed to create.)
+
+adminRoutes.get('/team', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const team = await prisma.user.findMany({
+      where:   { companyId: req.user!.companyId, role: { in: ['staff', 'coordinator'] } },
+      select:  { id: true, fullName: true, email: true, phone: true, role: true, isActive: true, createdAt: true },
+      orderBy: [{ role: 'asc' }, { fullName: 'asc' }],
+    })
+    res.json({ success: true, data: team })
+  } catch (err) { next(err) }
+})
+
+// ── POST /admin/team — admin-only: add a cleaner or supervisor profile ───────
+// Per the platform's permission model: only `admin` (or `superadmin`) can add
+// new staff/coordinator accounts to a company. Coordinators ("supervisors")
+// can be handed task assignment (see /bookings/:id/assign above) but never
+// account creation. Creates a real User row, scoped to the admin's own
+// company, with a generated temp password emailed to the new person.
+
+const createTeamMemberSchema = z.object({
+  email:    z.string().email(),
+  fullName: z.string().min(2).max(200),
+  phone:    z.string().optional(),
+  role:     z.enum(['staff', 'coordinator']), // staff = cleaner, coordinator = supervisor
+})
+
+adminRoutes.post('/team', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const companyId = req.user!.companyId
+    if (!companyId) throw new AppError('FORBIDDEN', 'Your account is not attached to a company', 403)
+
+    const body = createTeamMemberSchema.parse(req.body)
+
+    const existing = await prisma.user.findUnique({ where: { email: body.email } })
+    if (existing) throw new AppError('EMAIL_TAKEN', 'Email already registered', 409)
+
+    const tempPassword = crypto.randomBytes(9).toString('base64url')
+    const passwordHash = await bcrypt.hash(tempPassword, 12)
+
+    const user = await prisma.user.create({
+      data: {
+        companyId,
+        email:        body.email,
+        fullName:     body.fullName,
+        phone:        body.phone,
+        role:         body.role,
+        passwordHash,
+      },
+    })
+
+    sendEmail({
+      to: user.email,
+      template: 'team_invite',
+      data: { name: user.fullName, email: user.email, tempPassword, role: body.role },
+    }).catch(() => {})
+
+    res.status(201).json({
+      success: true,
+      data: { id: user.id, email: user.email, fullName: user.fullName, phone: user.phone, role: user.role, isActive: user.isActive },
+    })
+  } catch (err) { next(err) }
+})
+
+// ── PATCH /admin/team/:id — admin-only: activate/deactivate or change role ───
+// Limited to swapping between staff <-> coordinator within the same company;
+// promoting to admin/superadmin is deliberately out of scope here (that's
+// gated separately, by the two named platform-owner emails — see
+// /platform/companies/:id/admins).
+
+const updateTeamMemberSchema = z.object({
+  isActive: z.boolean().optional(),
+  role:     z.enum(['staff', 'coordinator']).optional(),
+  fullName: z.string().min(2).max(200).optional(),
+  phone:    z.string().optional(),
+})
+
+adminRoutes.patch('/team/:id', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body = updateTeamMemberSchema.parse(req.body)
+    const member = await prisma.user.findFirst({
+      where: { id: req.params.id, companyId: req.user!.companyId, role: { in: ['staff', 'coordinator'] } },
+    })
+    if (!member) throw new AppError('NOT_FOUND', 'Team member not found', 404)
+
+    const updated = await prisma.user.update({ where: { id: member.id }, data: body })
+    res.json({
+      success: true,
+      data: { id: updated.id, email: updated.email, fullName: updated.fullName, phone: updated.phone, role: updated.role, isActive: updated.isActive },
+    })
   } catch (err) { next(err) }
 })
