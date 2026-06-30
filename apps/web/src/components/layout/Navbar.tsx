@@ -9,6 +9,15 @@ import { Button } from '@/components/ui/button'
 export function Navbar() {
   const { data: session } = useSession()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const role = (session?.user as any)?.role
+  const dashboardHref =
+    role === 'superadmin' ? '/platform' :
+    role === 'admin' || role === 'coordinator' ? '/admin' :
+    '/dashboard'
+  const dashboardLabel =
+    role === 'superadmin' ? 'Platform' :
+    role === 'admin' || role === 'coordinator' ? 'Adminpanel' :
+    'Mina bokningar'
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/90 backdrop-blur-md">
@@ -46,7 +55,7 @@ export function Navbar() {
           {session ? (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/dashboard">Mina bokningar</Link>
+                <Link href={dashboardHref}>{dashboardLabel}</Link>
               </Button>
               <Button variant="outline" size="sm" onClick={() => signOut()}>
                 Logga ut
@@ -84,7 +93,7 @@ export function Navbar() {
             {session ? (
               <>
                 <Button variant="outline" size="sm" asChild className="w-full">
-                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}>Mina bokningar</Link>
+                  <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>{dashboardLabel}</Link>
                 </Button>
                 <Button variant="ghost" size="sm" className="w-full" onClick={() => signOut()}>Logga ut</Button>
               </>

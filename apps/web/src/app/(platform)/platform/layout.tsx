@@ -26,6 +26,12 @@ export default function PlatformLayout({
     }
   }, [status, role, router])
 
+  // Give PlatformHQ its own browser tab title — it's a distinct, permanent
+  // space from both the public site and the company admin panel.
+  useEffect(() => {
+    document.title = 'PlatformHQ | Stockholm Cleaning Co.'
+  }, [])
+
   if (status === 'loading' || role !== 'superadmin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-950">

@@ -40,25 +40,56 @@ const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
-        try {
-          const { data } = await axios.post(`${API_URL}/auth/login`, {
+
+        // The API host (Render free tier) spins down when idle, so the first
+        // request after a while can take 8-15s to "cold start" and may fail
+        // with a network error or 502/503 — NOT because the credentials are
+        // wrong. Retry transient failures once before giving up, and throw a
+        // distinguishable error (instead of returning null) so the login page
+        // can tell "server waking up" apart from "wrong email or password".
+        const attemptLogin = () =>
+          axios.post(`${API_URL}/auth/login`, {
             email:    credentials.email,
             password: credentials.password,
           })
-          if (data.success) {
-            return {
-              id:           data.data.user.id,
-              email:        data.data.user.email,
-              name:         data.data.user.fullName,
-              role:         data.data.user.role,
-              accessToken:  data.data.accessToken,
-              refreshToken: data.data.refreshToken,
+
+        let lastErr: any = null
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const { data } = await attemptLogin()
+            if (data.success) {
+              return {
+                id:           data.data.user.id,
+                email:        data.data.user.email,
+                name:         data.data.user.fullName,
+                role:         data.data.user.role,
+                accessToken:  data.data.accessToken,
+                refreshToken: data.data.refreshToken,
+              }
+            }
+            // Backend responded but said no — that's a real "invalid credentials"
+            return null
+          } catch (err: any) {
+            lastErr = err
+            const status = err?.response?.status
+            const isAuthRejection = status === 401 || status === 400 || status === 403
+            if (isAuthRejection) {
+              // Backend is up and explicitly rejected the credentials — don't retry
+              return null
+            }
+            // Network error / timeout / 5xx — likely a cold start. Retry once
+            // after a short delay before giving up.
+            if (attempt === 0) {
+              await new Promise((resolve) => setTimeout(resolve, 4000))
+              continue
             }
           }
-          return null
-        } catch {
-          return null
         }
+
+        // Exhausted retries on a transient (non-auth) failure — surface a
+        // distinguishable error so the UI shows "server waking up" instead of
+        // "wrong email or password".
+        throw new Error('ServerUnavailable')
       },
     }),
     GoogleProvider({

@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sparkles, LayoutDashboard, CalendarDays, Users, LogOut, ReceiptText } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
+import { Sparkles, LayoutDashboard, CalendarDays, Users, LogOut, ReceiptText, ArrowLeftRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -15,6 +15,8 @@ const NAV = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const role = (session?.user as any)?.role
 
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-neutral-200 bg-white min-h-screen sticky top-0">
@@ -57,6 +59,15 @@ export function AdminSidebar() {
 
       {/* Back to customer view + logout */}
       <div className="px-3 py-4 border-t border-neutral-100 space-y-0.5">
+        {role === 'superadmin' && (
+          <Link
+            href="/platform"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
+          >
+            <ArrowLeftRight size={16} className="text-neutral-400" />
+            Platform owner view
+          </Link>
+        )}
         <Link
           href="/dashboard"
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"

@@ -50,7 +50,11 @@ function LoginForm() {
     })
 
     if (result?.error) {
-      toast.error('Fel e-post eller lösenord. Försök igen.')
+      if (result.error === 'ServerUnavailable') {
+        toast.error('Servern startar om — vänta några sekunder och försök igen.')
+      } else {
+        toast.error('Fel e-post eller lösenord. Försök igen.')
+      }
       return
     }
 

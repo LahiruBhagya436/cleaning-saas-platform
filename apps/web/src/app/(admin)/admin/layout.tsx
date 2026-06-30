@@ -29,6 +29,12 @@ export default function AdminLayout({
     }
   }, [status, role, router])
 
+  // Give the admin dashboard its own browser tab title so it reads as a
+  // distinct, permanent space rather than an extension of the public site.
+  useEffect(() => {
+    document.title = 'Adminpanel | Stockholm Cleaning Co.'
+  }, [])
+
   if (status === 'loading' || !role || !ADMIN_ROLES.includes(role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
