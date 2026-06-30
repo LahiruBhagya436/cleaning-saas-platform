@@ -53,7 +53,6 @@ const authOptions: NextAuthOptions = {
             password: credentials.password,
           })
 
-        let lastErr: any = null
         for (let attempt = 0; attempt < 2; attempt++) {
           try {
             const { data } = await attemptLogin()
@@ -70,7 +69,6 @@ const authOptions: NextAuthOptions = {
             // Backend responded but said no — that's a real "invalid credentials"
             return null
           } catch (err: any) {
-            lastErr = err
             const status = err?.response?.status
             const isAuthRejection = status === 401 || status === 400 || status === 403
             if (isAuthRejection) {
