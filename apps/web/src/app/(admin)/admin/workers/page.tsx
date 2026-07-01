@@ -7,7 +7,7 @@ import { sv } from 'date-fns/locale'
 import {
   Loader2, Plus, X, CalendarDays, Briefcase, UserPlus,
   CheckCircle2, Copy, Pencil, Trash2, ChevronDown, ChevronUp,
-  Phone, Mail, MapPin, CreditCard, Shield, AlertTriangle, User2,
+  Mail, MapPin, CreditCard, Shield, AlertTriangle, User2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminApi } from '@/lib/api'
