@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
@@ -374,7 +374,7 @@ function WorkerRow({
 
 // ── Profile field helper ──────────────────────────────────────────────────────
 
-function ProfileField({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
+function ProfileField({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <div>
       <p className="text-xs font-medium text-neutral-400 flex items-center gap-1 mb-0.5">
@@ -674,7 +674,7 @@ function WorkerForm({
 
 // ── Form helpers ──────────────────────────────────────────────────────────────
 
-function FormSection({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function FormSection({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
   return (
     <div>
       <div className="flex items-baseline gap-2 mb-3">
@@ -686,7 +686,7 @@ function FormSection({ title, hint, children }: { title: string; hint?: string; 
   )
 }
 
-function FormField({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
+function FormField({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
       <label className="block text-xs text-neutral-500 mb-1">{label}</label>

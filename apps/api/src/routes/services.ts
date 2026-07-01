@@ -1,8 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { prisma } from '../lib/prisma'
+import { optionalAuthenticate } from '../middleware/auth'
 import { resolveCompany } from '../middleware/company'
 
 export const serviceRoutes = Router()
+// optionalAuthenticate must run first so req.user.companyId is available
+// for resolveCompany when a logged-in customer hits this public endpoint
+serviceRoutes.use(optionalAuthenticate)
 serviceRoutes.use(resolveCompany)
 
 serviceRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {

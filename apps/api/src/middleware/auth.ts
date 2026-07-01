@@ -43,6 +43,31 @@ export const authenticate = async (
   }
 }
 
+/**
+ * Like `authenticate` but doesn't fail when no token is present.
+ * Sets req.user if a valid Bearer token is found so that resolveCompany
+ * can pick up companyId from the token. Used on public routes that also
+ * need to work for authenticated users (e.g. /services for booking).
+ */
+export const optionalAuthenticate = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  const header = req.headers.authorization
+  if (!header?.startsWith('Bearer ')) return next()
+  try {
+    const token  = header.slice(7)
+    const secret = process.env.JWT_ACCESS_SECRET
+    if (!secret) return next()
+    const payload = jwt.verify(token, secret) as AuthPayload
+    req.user = payload
+  } catch {
+    // Invalid / expired token — treat as unauthenticated
+  }
+  next()
+}
+
 export const requireRole = (...roles: UserRole[]) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) return next(new AppError('UNAUTHORIZED', 'Authentication required', 401))
