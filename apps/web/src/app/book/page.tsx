@@ -51,6 +51,15 @@ export default function BookPage() {
   const router         = useRouter()
   const { data: session } = useSession()
   const [step, setStep]           = useState(0)
+
+  // Pre-warm the Render API when the booking page loads so services load
+  // fast even if the API was sleeping.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1'
+    const healthUrl = apiUrl.replace(/\/v1\/?$/, '/health')
+    fetch(healthUrl, { method: 'GET' }).catch(() => {})
+  }, [])
   const [data, setData]           = useState<BookingData>(INITIAL)
   const [booking, setBooking]     = useState<any>(null)
   const [submitting, setSubmitting] = useState(false)

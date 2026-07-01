@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react'
 // ── Create axios instance ─────────────────────────────────────────────────────
 const api: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1',
-  timeout: 10000,
+  timeout: 25000, // 25 s — covers Render free-tier cold-start (~15-20 s)
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -212,6 +212,37 @@ export const adminApi = {
 
   updateTeamMember: (id: string, data: { isActive?: boolean; role?: 'staff' | 'coordinator'; fullName?: string; phone?: string }) =>
     api.patch<any, ApiResponse<any>>(`/admin/team/${id}`, data),
+
+  // Worker profile management — full CRUD with personal/bank details
+  getWorker: (id: string) =>
+    api.get<any, ApiResponse<any>>(`/admin/workers/${id}`),
+
+  createWorker: (data: {
+    email: string; fullName: string; phone?: string
+    role: 'staff' | 'coordinator'
+    personnummer?: string
+    addressLine1?: string; city?: string; postalCode?: string
+    bankAccount?: string; bankClearingNo?: string
+    emergencyContact?: string; emergencyPhone?: string
+    hireDate?: string
+    employmentNotes?: string
+  }) =>
+    api.post<any, ApiResponse<any>>('/admin/workers', data),
+
+  updateWorker: (id: string, data: {
+    fullName?: string; phone?: string | null
+    role?: 'staff' | 'coordinator'; isActive?: boolean
+    personnummer?: string | null
+    addressLine1?: string | null; city?: string | null; postalCode?: string | null
+    bankAccount?: string | null; bankClearingNo?: string | null
+    emergencyContact?: string | null; emergencyPhone?: string | null
+    hireDate?: string | null
+    employmentNotes?: string | null
+  }) =>
+    api.patch<any, ApiResponse<any>>(`/admin/workers/${id}`, data),
+
+  deleteWorker: (id: string) =>
+    api.delete<any, ApiResponse<any>>(`/admin/workers/${id}`),
 }
 
 // ── Stripe Connect (per-company payment onboarding) ───────────────────────────

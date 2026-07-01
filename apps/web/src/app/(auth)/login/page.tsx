@@ -31,6 +31,7 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const explicitCallbackUrl = searchParams.get('callbackUrl')
   const callbackUrl  = explicitCallbackUrl ?? '/dashboard'
+  const urlError     = searchParams.get('error')
 
   const [showPassword, setShowPassword] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -97,6 +98,18 @@ function LoginForm() {
 
   return (
     <div className="animate-fade-up">
+      {/* URL-error banners (NextAuth redirects here with ?error=) */}
+      {urlError === 'OAuthBackendLinkError' && (
+        <div className="mb-5 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+          <strong>Servern startar om.</strong> Vänta 30 sekunder och försök logga in med Google igen.
+        </div>
+      )}
+      {urlError && urlError !== 'OAuthBackendLinkError' && (
+        <div className="mb-5 rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+          Inloggning misslyckades — försök igen eller logga in med e-post.
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-display text-3xl text-neutral-900 mb-2">

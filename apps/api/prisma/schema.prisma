@@ -120,6 +120,20 @@ model User {
   preferredLanguage  String          @default("sv")
   isActive           Boolean         @default(true)
   personnummerEnc    String?
+
+  // ── Worker / staff profile fields ─────────────────────────────────────────
+  // Only populated for role = staff | coordinator. Stored encrypted where
+  // sensitive (personnummerEnc, bankAccountEnc).
+  addressLine1       String?
+  city               String?
+  postalCode         String?
+  bankAccountEnc     String?         // encrypted IBAN / bank account number
+  bankClearingNo     String?         // bank clearing / sort code (not secret)
+  emergencyContact   String?         // name of emergency contact
+  emergencyPhone     String?         // phone of emergency contact
+  hireDate           DateTime?       @db.Date
+  employmentNotes    String?         // internal admin-only notes
+
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 

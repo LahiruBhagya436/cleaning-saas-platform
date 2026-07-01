@@ -106,25 +106,35 @@ const authOptions: NextAuthOptions = {
       // does), so a Google sign-in ends up with a working role + API tokens
       // just like a credentials sign-in.
       if (user && account?.provider === 'google') {
-        try {
-          const { data } = await axios.post(
-            `${API_URL}/auth/oauth-google`,
-            { email: user.email, fullName: user.name, googleId: account.providerAccountId },
-            { headers: { 'x-internal-secret': process.env.INTERNAL_AUTH_SECRET } }
-          )
-          if (data.success) {
-            token.id                 = data.data.user.id
-            token.role               = data.data.user.role
-            token.accessToken        = data.data.accessToken
-            token.refreshToken       = data.data.refreshToken
-            token.accessTokenExpires = Date.now() + (data.data.expiresIn ?? 900) * 1000
-            return token
+        // Render free tier can take 15-30 s to cold-start. Retry once after a
+        // short delay before giving up, mirroring the credentials provider's
+        // behaviour. Hard auth rejections (401/403/400) are not retried.
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const { data } = await axios.post(
+              `${API_URL}/auth/oauth-google`,
+              { email: user.email, fullName: user.name, googleId: account.providerAccountId },
+              {
+                headers: { 'x-internal-secret': process.env.INTERNAL_AUTH_SECRET },
+                timeout: 20_000, // 20 s — covers typical Render cold-start
+              }
+            )
+            if (data.success) {
+              token.id                 = data.data.user.id
+              token.role               = data.data.user.role
+              token.accessToken        = data.data.accessToken
+              token.refreshToken       = data.data.refreshToken
+              token.accessTokenExpires = Date.now() + (data.data.expiresIn ?? 900) * 1000
+              return token
+            }
+            break // backend responded with success:false — stop retrying
+          } catch (err: any) {
+            const status = err?.response?.status
+            const isHardError = status === 401 || status === 403 || status === 400
+            if (isHardError || attempt === 1) break
+            // Likely a network/timeout/5xx cold-start — wait then retry
+            await new Promise((r) => setTimeout(r, 4000))
           }
-        } catch {
-          // Backend link failed — fall through with no role/tokens. The
-          // role-gated layouts below now redirect rather than spin forever
-          // when role is missing, and API calls will correctly 401 instead
-          // of sending the literal string "undefined" as a bearer token.
         }
         token.error = 'OAuthBackendLinkError'
         return token
@@ -139,6 +149,11 @@ const authOptions: NextAuthOptions = {
         token.accessTokenExpires = Date.now() + 900 * 1000 // matches API's expiresIn (15m)
         return token
       }
+
+      // If sign-in errored (e.g. OAuthBackendLinkError), there are no tokens to
+      // refresh. Return early so we don't hammer the API with undefined refresh
+      // tokens on every subsequent session check.
+      if (token.error === 'OAuthBackendLinkError') return token
 
       // Subsequent requests: refresh the access token before it expires
       if (token.accessTokenExpires && Date.now() < (token.accessTokenExpires as number) - 60_000) {

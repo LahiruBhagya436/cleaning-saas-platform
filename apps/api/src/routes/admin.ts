@@ -303,3 +303,186 @@ adminRoutes.patch('/team/:id', requireAdmin, async (req: Request, res: Response,
     })
   } catch (err) { next(err) }
 })
+
+// ════════════════════════════════════════════════════════════════════════════
+// Worker profile management — full CRUD including personal details
+// ════════════════════════════════════════════════════════════════════════════
+
+// Fields returned from the DB for a worker profile (never expose passwordHash)
+const WORKER_SELECT = {
+  id: true, fullName: true, email: true, phone: true, role: true,
+  isActive: true, createdAt: true,
+  // Worker profile fields
+  addressLine1: true, city: true, postalCode: true,
+  bankClearingNo: true,       // clearing number is not secret
+  bankAccountEnc: true,       // encrypted — frontend decrypts or displays masked
+  emergencyContact: true, emergencyPhone: true,
+  hireDate: true, employmentNotes: true,
+  personnummerEnc: true,      // encrypted
+}
+
+// ── GET /admin/workers/:id — full profile for one worker ─────────────────────
+adminRoutes.get('/workers/:id', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const worker = await prisma.user.findFirst({
+      where:  { id: req.params.id, companyId: req.user!.companyId, role: { in: ['staff', 'coordinator'] } },
+      select: WORKER_SELECT,
+    })
+    if (!worker) throw new AppError('NOT_FOUND', 'Worker not found', 404)
+    res.json({ success: true, data: worker })
+  } catch (err) { next(err) }
+})
+
+// ── POST /admin/workers — create worker with full profile ─────────────────────
+const createWorkerSchema = z.object({
+  email:            z.string().email(),
+  fullName:         z.string().min(2).max(200),
+  phone:            z.string().optional(),
+  role:             z.enum(['staff', 'coordinator']),
+  // Profile
+  personnummer:     z.string().optional(),   // raw — backend encrypts
+  addressLine1:     z.string().max(300).optional(),
+  city:             z.string().max(100).optional(),
+  postalCode:       z.string().max(20).optional(),
+  bankAccount:      z.string().max(50).optional(),  // raw — backend encrypts
+  bankClearingNo:   z.string().max(10).optional(),
+  emergencyContact: z.string().max(200).optional(),
+  emergencyPhone:   z.string().max(30).optional(),
+  hireDate:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  employmentNotes:  z.string().max(2000).optional(),
+})
+
+function encryptField(value: string | undefined): string | undefined {
+  if (!value) return undefined
+  // Simple AES-256-GCM encryption using ENCRYPTION_KEY env var.
+  // Falls back to base64 if key not configured (dev / early setup).
+  const key = process.env.ENCRYPTION_KEY
+  if (!key) return Buffer.from(value).toString('base64') // dev fallback
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(key, 'hex'), iv)
+  const enc = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()])
+  const tag = cipher.getAuthTag()
+  return `${iv.toString('hex')}:${enc.toString('hex')}:${tag.toString('hex')}`
+}
+
+adminRoutes.post('/workers', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const companyId = req.user!.companyId
+    if (!companyId) throw new AppError('FORBIDDEN', 'Your account is not attached to a company', 403)
+
+    const body = createWorkerSchema.parse(req.body)
+
+    const existing = await prisma.user.findUnique({ where: { email: body.email } })
+    if (existing) throw new AppError('EMAIL_TAKEN', 'Email already registered', 409)
+
+    const tempPassword = crypto.randomBytes(9).toString('base64url')
+    const passwordHash = await bcrypt.hash(tempPassword, 12)
+
+    const hireDate = body.hireDate ? new Date(body.hireDate) : undefined
+
+    const user = await prisma.user.create({
+      data: {
+        companyId,
+        email:            body.email,
+        fullName:         body.fullName,
+        phone:            body.phone,
+        role:             body.role,
+        passwordHash,
+        addressLine1:     body.addressLine1,
+        city:             body.city,
+        postalCode:       body.postalCode,
+        bankClearingNo:   body.bankClearingNo,
+        bankAccountEnc:   encryptField(body.bankAccount),
+        personnummerEnc:  encryptField(body.personnummer),
+        emergencyContact: body.emergencyContact,
+        emergencyPhone:   body.emergencyPhone,
+        hireDate,
+        employmentNotes:  body.employmentNotes,
+      },
+      select: WORKER_SELECT,
+    })
+
+    sendEmail({
+      to: user.email,
+      template: 'team_invite',
+      data: { name: user.fullName, email: user.email, tempPassword, role: body.role },
+    }).catch(() => {})
+
+    res.status(201).json({ success: true, data: { ...user, tempPassword } })
+  } catch (err) { next(err) }
+})
+
+// ── PATCH /admin/workers/:id — update full worker profile ─────────────────────
+const updateWorkerSchema = z.object({
+  fullName:         z.string().min(2).max(200).optional(),
+  phone:            z.string().optional().nullable(),
+  role:             z.enum(['staff', 'coordinator']).optional(),
+  isActive:         z.boolean().optional(),
+  // Profile
+  personnummer:     z.string().optional().nullable(),
+  addressLine1:     z.string().max(300).optional().nullable(),
+  city:             z.string().max(100).optional().nullable(),
+  postalCode:       z.string().max(20).optional().nullable(),
+  bankAccount:      z.string().max(50).optional().nullable(),
+  bankClearingNo:   z.string().max(10).optional().nullable(),
+  emergencyContact: z.string().max(200).optional().nullable(),
+  emergencyPhone:   z.string().max(30).optional().nullable(),
+  hireDate:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  employmentNotes:  z.string().max(2000).optional().nullable(),
+})
+
+adminRoutes.patch('/workers/:id', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const member = await prisma.user.findFirst({
+      where: { id: req.params.id, companyId: req.user!.companyId, role: { in: ['staff', 'coordinator'] } },
+    })
+    if (!member) throw new AppError('NOT_FOUND', 'Worker not found', 404)
+
+    const body = updateWorkerSchema.parse(req.body)
+
+    const updateData: Record<string, unknown> = {}
+    if (body.fullName         !== undefined) updateData.fullName         = body.fullName
+    if (body.phone            !== undefined) updateData.phone            = body.phone
+    if (body.role             !== undefined) updateData.role             = body.role
+    if (body.isActive         !== undefined) updateData.isActive         = body.isActive
+    if (body.addressLine1     !== undefined) updateData.addressLine1     = body.addressLine1
+    if (body.city             !== undefined) updateData.city             = body.city
+    if (body.postalCode       !== undefined) updateData.postalCode       = body.postalCode
+    if (body.bankClearingNo   !== undefined) updateData.bankClearingNo   = body.bankClearingNo
+    if (body.emergencyContact !== undefined) updateData.emergencyContact = body.emergencyContact
+    if (body.emergencyPhone   !== undefined) updateData.emergencyPhone   = body.emergencyPhone
+    if (body.employmentNotes  !== undefined) updateData.employmentNotes  = body.employmentNotes
+    if (body.hireDate         !== undefined) updateData.hireDate         = body.hireDate ? new Date(body.hireDate) : null
+    // Encrypt sensitive fields only when explicitly supplied
+    if (body.bankAccount      !== undefined) updateData.bankAccountEnc   = body.bankAccount ? encryptField(body.bankAccount) : null
+    if (body.personnummer     !== undefined) updateData.personnummerEnc  = body.personnummer ? encryptField(body.personnummer) : null
+
+    const updated = await prisma.user.update({
+      where:  { id: member.id },
+      data:   updateData,
+      select: WORKER_SELECT,
+    })
+    res.json({ success: true, data: updated })
+  } catch (err) { next(err) }
+})
+
+// ── DELETE /admin/workers/:id — deactivate (soft-delete) a worker ─────────────
+adminRoutes.delete('/workers/:id', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const member = await prisma.user.findFirst({
+      where: { id: req.params.id, companyId: req.user!.companyId, role: { in: ['staff', 'coordinator'] } },
+    })
+    if (!member) throw new AppError('NOT_FOUND', 'Worker not found', 404)
+
+    // Soft-delete: deactivate and unassign from pending bookings
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: member.id }, data: { isActive: false } }),
+      prisma.booking.updateMany({
+        where:  { staffId: member.id, status: { in: ['pending', 'confirmed'] } },
+        data:   { staffId: null, status: 'pending' },
+      }),
+    ])
+
+    res.json({ success: true, data: { id: member.id, deactivated: true } })
+  } catch (err) { next(err) }
+})
