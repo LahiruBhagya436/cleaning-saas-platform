@@ -4,6 +4,7 @@ import { Prisma, BookingStatus } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../middleware/errorHandler'
 import { authenticate } from '../middleware/auth'
+import { resolveCompany } from '../middleware/company'
 import { calculateBookingPrice } from '../services/pricing'
 import { generateChecklist } from '../services/checklist'
 import { sendNotification } from '../services/notifications'
@@ -11,6 +12,9 @@ import { sendEmail } from '../services/email'
 
 export const bookingRoutes = Router()
 bookingRoutes.use(authenticate)
+// resolveCompany after authenticate so req.user is set for the companyId check;
+// falls back to single-tenant lookup for Google/OAuth users whose JWT has companyId=null
+bookingRoutes.use(resolveCompany)
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -40,7 +44,7 @@ bookingRoutes.get('/availability', async (req: Request, res: Response, next: Nex
     const dayStart = new Date(date); dayStart.setHours(7, 0, 0, 0)
     const dayEnd   = new Date(date); dayEnd.setHours(20, 0, 0, 0)
 
-    const companyId = req.user!.companyId!
+    const companyId = req.companyId!
 
     // Find all available staff for this date (same company only)
     const schedules = await prisma.staffSchedule.findMany({
@@ -97,7 +101,7 @@ bookingRoutes.get('/', async (req: Request, res: Response, next: NextFunction) =
     const { status, limit = '20', after } = req.query
     const take = Math.min(Number(limit), 50)
 
-    const where: Prisma.BookingWhereInput = { userId: req.user!.userId, companyId: req.user!.companyId ?? undefined }
+    const where: Prisma.BookingWhereInput = { userId: req.user!.userId, companyId: req.companyId }
     if (status) where.status = status as BookingStatus
     if (after) where.id = { gt: after as string }
 
@@ -125,7 +129,7 @@ bookingRoutes.get('/', async (req: Request, res: Response, next: NextFunction) =
 bookingRoutes.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = createBookingSchema.parse(req.body)
-    const companyId = req.user!.companyId!
+    const companyId = req.companyId!
 
     // Verify property belongs to user
     const property = await prisma.property.findFirst({
@@ -243,7 +247,7 @@ bookingRoutes.post('/', async (req: Request, res: Response, next: NextFunction) 
 bookingRoutes.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined },
+      where: { id: req.params.id, userId: req.user!.userId, companyId: req.companyId },
       include: {
         property: true,
         staff: { select: { id: true, fullName: true, phone: true } },
@@ -269,7 +273,7 @@ bookingRoutes.patch('/:id', async (req: Request, res: Response, next: NextFuncti
     const body = schema.parse(req.body)
 
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined },
+      where: { id: req.params.id, userId: req.user!.userId, companyId: req.companyId },
     })
     if (!booking) throw new AppError('NOT_FOUND', 'Booking not found', 404)
     if (['completed','cancelled'].includes(booking.status)) {
@@ -302,7 +306,7 @@ bookingRoutes.delete('/:id', async (req: Request, res: Response, next: NextFunct
   try {
     const { cancellationReason } = req.body
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, userId: req.user!.userId, companyId: req.user!.companyId ?? undefined },
+      where: { id: req.params.id, userId: req.user!.userId, companyId: req.companyId },
     })
     if (!booking) throw new AppError('NOT_FOUND', 'Booking not found', 404)
     if (booking.status === 'completed') {
@@ -328,7 +332,7 @@ bookingRoutes.delete('/:id', async (req: Request, res: Response, next: NextFunct
 bookingRoutes.post('/:id/complete', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const booking = await prisma.booking.findFirst({
-      where: { id: req.params.id, staffId: req.user!.userId, status: 'in_progress', companyId: req.user!.companyId ?? undefined },
+      where: { id: req.params.id, staffId: req.user!.userId, status: 'in_progress', companyId: req.companyId },
     })
     if (!booking) throw new AppError('NOT_FOUND', 'Active booking not found', 404)
 

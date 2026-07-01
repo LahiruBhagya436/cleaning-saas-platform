@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
-import { Loader2, Plus, X, CalendarDays, Briefcase, UserPlus } from 'lucide-react'
+import { Loader2, Plus, X, CalendarDays, Briefcase, UserPlus, CheckCircle2, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -98,6 +98,7 @@ function AddTeamMemberForm({ onAdded }: { onAdded: () => void }) {
   const [phone,    setPhone]    = useState('')
   const [role,     setRole]     = useState<'staff' | 'coordinator'>('staff')
   const [saving,   setSaving]   = useState(false)
+  const [created,  setCreated]  = useState<{ fullName: string; email: string; tempPassword: string } | null>(null)
 
   const submit = async () => {
     if (!fullName.trim() || !email.trim()) {
@@ -106,14 +107,62 @@ function AddTeamMemberForm({ onAdded }: { onAdded: () => void }) {
     }
     setSaving(true)
     try {
-      await adminApi.addTeamMember({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() || undefined, role })
-      toast.success(role === 'coordinator' ? 'Arbetsledare tillagd. Inloggningsuppgifter skickade via e-post.' : 'Städare tillagd. Inloggningsuppgifter skickade via e-post.')
-      onAdded()
+      const res = await adminApi.addTeamMember({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() || undefined, role })
+      // Show the temp password in the UI so admin can share it directly,
+      // regardless of whether the invite email was delivered.
+      if (res.data?.tempPassword) {
+        setCreated({ fullName: fullName.trim(), email: email.trim(), tempPassword: res.data.tempPassword })
+      } else {
+        toast.success('Person tillagd.')
+        onAdded()
+      }
     } catch (err: any) {
       toast.error(err?.message ?? 'Kunde inte lägga till personen.')
     } finally {
       setSaving(false)
     }
+  }
+
+  // ── Show credentials card after successful creation ───────────────────────
+  if (created) {
+    return (
+      <div className="bg-white border border-teal-200 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-teal-500 shrink-0" />
+          <p className="text-sm font-medium text-neutral-900">
+            {role === 'coordinator' ? 'Arbetsledare tillagd!' : 'Städare tillagd!'}
+          </p>
+        </div>
+        <p className="text-xs text-neutral-600">
+          Dela inloggningsuppgifterna direkt med <strong>{created.fullName}</strong> — e-postleverans är inte alltid garanterad.
+        </p>
+        <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 space-y-2 text-xs font-mono">
+          <div className="flex items-center justify-between gap-3">
+            <span><span className="text-neutral-400">E-post: </span>{created.email}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span><span className="text-neutral-400">Lösenord: </span>{created.tempPassword}</span>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(created.tempPassword)
+                toast.success('Lösenord kopierat!')
+              }}
+              className="p-1 text-neutral-400 hover:text-neutral-700 transition-colors shrink-0"
+              title="Kopiera lösenord"
+            >
+              <Copy size={12} />
+            </button>
+          </div>
+        </div>
+        <p className="text-xs text-neutral-400">
+          Be personen logga in med ovan uppgifter och byta lösenord direkt.
+        </p>
+        <Button size="sm" variant="outline" onClick={() => { setCreated(null); onAdded() }}>
+          Klar
+        </Button>
+      </div>
+    )
   }
 
   return (

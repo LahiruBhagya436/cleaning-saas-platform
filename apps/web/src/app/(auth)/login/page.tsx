@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, getSession } from 'next-auth/react'
@@ -34,6 +34,16 @@ function LoginForm() {
 
   const [showPassword, setShowPassword] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+
+  // Pre-warm the Render API (free tier spins down after 15 min idle).
+  // Firing a health-check request the moment the login page loads gives
+  // Render ~30 s to wake up before the user actually submits credentials,
+  // dramatically reducing "ServerUnavailable" errors on first login.
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1'
+    const healthUrl = apiUrl.replace(/\/v1\/?$/, '/health')
+    fetch(healthUrl, { method: 'GET' }).catch(() => {})
+  }, [])
 
   const {
     register,

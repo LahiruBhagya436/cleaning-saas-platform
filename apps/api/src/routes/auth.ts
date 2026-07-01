@@ -291,12 +291,20 @@ authRoutes.post('/oauth-google', async (req: Request, res: Response, next: NextF
           data: { googleId: body.googleId },
         })
       } else {
+        // In single-tenant deployments (exactly 1 company) auto-assign the
+        // customer so resolveCompany's single-tenant fallback isn't needed for
+        // every subsequent API call and the booking flow works out of the box.
+        let autoCompanyId: string | null = null
+        const companies = await prisma.company.findMany({ select: { id: true }, take: 2 })
+        if (companies.length === 1) autoCompanyId = companies[0].id
+
         user = await prisma.user.create({
           data: {
-            email:    body.email,
-            fullName: body.fullName,
-            googleId: body.googleId,
-            role:     'customer',
+            email:     body.email,
+            fullName:  body.fullName,
+            googleId:  body.googleId,
+            role:      'customer',
+            companyId: autoCompanyId,
           },
         })
         sendEmail({

@@ -13,6 +13,12 @@ const WEB_URL = process.env.WEB_URL ?? 'http://localhost:3000'
 
 connectRoutes.get('/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Superadmin accounts are not scoped to a company — return a neutral response
+    // instead of erroring, so the payments page renders gracefully.
+    if (!req.user!.companyId) {
+      return res.json({ success: true, data: { connected: false, onboarded: false } })
+    }
+
     const company = await prisma.company.findUnique({ where: { id: req.user!.companyId! } })
     if (!company) throw new AppError('NOT_FOUND', 'Company not found', 404)
 
@@ -46,6 +52,8 @@ connectRoutes.get('/status', async (req: Request, res: Response, next: NextFunct
 
 connectRoutes.post('/onboard', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!req.user!.companyId) throw new AppError('FORBIDDEN', 'No company attached to this account', 403)
+
     const company = await prisma.company.findUnique({ where: { id: req.user!.companyId! } })
     if (!company) throw new AppError('NOT_FOUND', 'Company not found', 404)
 
@@ -81,6 +89,8 @@ connectRoutes.post('/onboard', async (req: Request, res: Response, next: NextFun
 
 connectRoutes.post('/dashboard-link', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!req.user!.companyId) throw new AppError('FORBIDDEN', 'No company attached to this account', 403)
+
     const company = await prisma.company.findUnique({ where: { id: req.user!.companyId! } })
     if (!company?.stripeAccountId) throw new AppError('NOT_CONNECTED', 'Stripe account not connected yet', 400)
 

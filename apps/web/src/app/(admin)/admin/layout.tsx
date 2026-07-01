@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Loader2 } from 'lucide-react'
@@ -48,6 +49,16 @@ export default function AdminLayout({
       <AdminSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardHeader />
+        {role === 'superadmin' && (
+          <div className="bg-amber-50 border-b border-amber-200 px-6 py-2.5 flex items-center justify-between gap-4">
+            <p className="text-xs text-amber-700">
+              Platform owner mode — admin data is empty because your account isn&#39;t scoped to a company.
+            </p>
+            <Link href="/platform" className="text-xs font-medium text-amber-800 hover:underline whitespace-nowrap">
+              Platform HQ →
+            </Link>
+          </div>
+        )}
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-6xl">
             {children}

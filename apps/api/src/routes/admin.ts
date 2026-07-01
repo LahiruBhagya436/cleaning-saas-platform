@@ -269,7 +269,8 @@ adminRoutes.post('/team', requireAdmin, async (req: Request, res: Response, next
 
     res.status(201).json({
       success: true,
-      data: { id: user.id, email: user.email, fullName: user.fullName, phone: user.phone, role: user.role, isActive: user.isActive },
+      // tempPassword returned so the admin can share it directly if email doesn't arrive
+      data: { id: user.id, email: user.email, fullName: user.fullName, phone: user.phone, role: user.role, isActive: user.isActive, tempPassword },
     })
   } catch (err) { next(err) }
 })

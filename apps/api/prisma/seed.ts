@@ -6,139 +6,163 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // ── Admin user ──────────────────────────────────────────────────────────────
+  // ── Demo company ─────────────────────────────────────────────────────────────
+  // resolveCompany's single-tenant fallback only works when exactly ONE company
+  // exists in the DB. Without this row, every API call that uses resolveCompany
+  // (services, bookings, register, etc.) throws COMPANY_REQUIRED (400).
+  const company = await prisma.company.upsert({
+    where:  { slug: 'cleaningco' },
+    update: {},
+    create: {
+      name:         'CleaningCo',
+      slug:         'cleaningco',
+      contactEmail: 'admin@cleaningco.se',
+      contactPhone: '+46701000001',
+      city:         'Stockholm',
+      isActive:     true,
+    },
+  })
+  console.log('✓ Demo company:', company.slug, '(id:', company.id + ')')
+
+  // ── Admin user ───────────────────────────────────────────────────────────────
   const adminHash = await bcrypt.hash('Admin123!', 12)
   await prisma.user.upsert({
     where:  { email: 'admin@cleaningco.se' },
-    update: { passwordHash: adminHash },
+    update: { passwordHash: adminHash, companyId: company.id },
     create: {
       email:        'admin@cleaningco.se',
       passwordHash: adminHash,
       fullName:     'Admin',
       role:         'admin',
+      companyId:    company.id,
     },
   })
   console.log('✓ Admin user created')
 
-  // ── Demo staff ──────────────────────────────────────────────────────────────
+  // ── Demo staff ───────────────────────────────────────────────────────────────
   const staffHash = await bcrypt.hash('Staff123!', 12)
   await prisma.user.upsert({
     where:  { email: 'fatima@cleaningco.se' },
-    update: { passwordHash: staffHash },
+    update: { passwordHash: staffHash, companyId: company.id },
     create: {
       email:        'fatima@cleaningco.se',
       passwordHash: staffHash,
       fullName:     'Fatima Al-Hassan',
       role:         'staff',
       phone:        '+46701234567',
+      companyId:    company.id,
     },
   })
   console.log('✓ Staff user created')
 
-  // ── Demo customer ───────────────────────────────────────────────────────────
+  // ── Demo customer ─────────────────────────────────────────────────────────────
   const custHash = await bcrypt.hash('Customer123!', 12)
   await prisma.user.upsert({
     where:  { email: 'anna@example.se' },
-    update: { passwordHash: custHash },
+    update: { passwordHash: custHash, companyId: company.id },
     create: {
       email:        'anna@example.se',
       passwordHash: custHash,
       fullName:     'Anna Lindqvist',
       role:         'customer',
       phone:        '+46709876543',
+      companyId:    company.id,
     },
   })
   console.log('✓ Customer user created')
 
-  // ── Services catalogue ──────────────────────────────────────────────────────
+  // ── Services catalogue ────────────────────────────────────────────────────────
+  // NOTE: Service unique constraint is @@unique([companyId, name]) — the upsert
+  // must use the compound key { companyId_name: { companyId, name } }, not just name.
   const services = [
     {
-      name:            'Regular home cleaning',
-      nameSv:          'Hemstädning',
-      category:        'residential' as const,
+      name:             'Regular home cleaning',
+      nameSv:           'Hemstädning',
+      category:         'residential' as const,
       basePricePerHour: 700,
-      rutEligible:     true,
-      minDurationMins: 120,
-      sortOrder:       1,
+      rutEligible:      true,
+      minDurationMins:  120,
+      sortOrder:        1,
     },
     {
-      name:            'Deep cleaning',
-      nameSv:          'Storstädning',
-      category:        'residential' as const,
+      name:             'Deep cleaning',
+      nameSv:           'Storstädning',
+      category:         'residential' as const,
       basePricePerHour: 700,
-      rutEligible:     true,
-      minDurationMins: 240,
-      sortOrder:       2,
+      rutEligible:      true,
+      minDurationMins:  240,
+      sortOrder:        2,
     },
     {
-      name:            'Move-in / move-out cleaning',
-      nameSv:          'Flyttstädning',
-      category:        'residential' as const,
+      name:             'Move-in / move-out cleaning',
+      nameSv:           'Flyttstädning',
+      category:         'residential' as const,
       basePricePerHour: 700,
-      rutEligible:     true,
-      minDurationMins: 300,
-      sortOrder:       3,
+      rutEligible:      true,
+      minDurationMins:  300,
+      sortOrder:        3,
     },
     {
-      name:            'Window cleaning',
-      nameSv:          'Fönsterputning',
-      category:        'residential' as const,
+      name:             'Window cleaning',
+      nameSv:           'Fönsterputning',
+      category:         'residential' as const,
       basePricePerHour: 600,
-      rutEligible:     true,
-      minDurationMins: 60,
-      sortOrder:       4,
+      rutEligible:      true,
+      minDurationMins:  60,
+      sortOrder:        4,
     },
     {
-      name:            'After-party cleaning',
-      nameSv:          'Efterfeststädning',
-      category:        'residential' as const,
+      name:             'After-party cleaning',
+      nameSv:           'Efterfeststädning',
+      category:         'residential' as const,
       basePricePerHour: 750,
-      rutEligible:     true,
-      minDurationMins: 120,
-      sortOrder:       5,
+      rutEligible:      true,
+      minDurationMins:  120,
+      sortOrder:        5,
     },
     {
-      name:            'Office cleaning',
-      nameSv:          'Kontorstädning',
-      category:        'commercial' as const,
+      name:             'Office cleaning',
+      nameSv:           'Kontorstädning',
+      category:         'commercial' as const,
       basePricePerHour: 650,
-      rutEligible:     false,
-      minDurationMins: 120,
-      sortOrder:       6,
+      rutEligible:      false,
+      minDurationMins:  120,
+      sortOrder:        6,
     },
     {
-      name:            'Stairwell cleaning',
-      nameSv:          'Trapphustädning',
-      category:        'commercial' as const,
+      name:             'Stairwell cleaning',
+      nameSv:           'Trapphustädning',
+      category:         'commercial' as const,
       basePricePerHour: 550,
-      rutEligible:     false,
-      minDurationMins: 60,
-      sortOrder:       7,
+      rutEligible:      false,
+      minDurationMins:  60,
+      sortOrder:        7,
     },
     {
-      name:            'Post-construction cleaning',
-      nameSv:          'Byggstädning',
-      category:        'specialty' as const,
+      name:             'Post-construction cleaning',
+      nameSv:           'Byggstädning',
+      category:         'specialty' as const,
       basePricePerHour: 800,
-      rutEligible:     false,
-      minDurationMins: 240,
-      sortOrder:       8,
+      rutEligible:      false,
+      minDurationMins:  240,
+      sortOrder:        8,
     },
   ]
 
   for (const svc of services) {
     await prisma.service.upsert({
-      where:  { name: svc.name },
+      where:  { companyId_name: { companyId: company.id, name: svc.name } },
       update: {},
       create: {
-        name:            svc.name,
-        nameSv:          svc.nameSv,
-        category:        svc.category,
-        basePricePerHour:svc.basePricePerHour,
-        rutEligible:     svc.rutEligible,
-        vatRate:         0.25,
-        minDurationMins: svc.minDurationMins,
-        sortOrder:       svc.sortOrder,
+        companyId:        company.id,
+        name:             svc.name,
+        nameSv:           svc.nameSv,
+        category:         svc.category,
+        basePricePerHour: svc.basePricePerHour,
+        rutEligible:      svc.rutEligible,
+        vatRate:          0.25,
+        minDurationMins:  svc.minDurationMins,
+        sortOrder:        svc.sortOrder,
       },
     })
   }
@@ -154,7 +178,7 @@ async function main() {
       const d = new Date(today)
       d.setDate(today.getDate() + i)
       const dow = d.getDay() // 0=Sun, 6=Sat
-      if (dow === 0 || dow === 6) continue // skip weekends
+      if (dow === 0 || dow === 6) continue
       await prisma.staffSchedule.upsert({
         where:  { staffId_workDate: { staffId: fatimaUser.id, workDate: d } },
         update: {},
@@ -167,6 +191,7 @@ async function main() {
 
   console.log('')
   console.log('✅ Seed complete!')
+  console.log('   Company:  cleaningco')
   console.log('   Admin:    admin@cleaningco.se    / Admin123!')
   console.log('   Staff:    fatima@cleaningco.se   / Staff123!')
   console.log('   Customer: anna@example.se        / Customer123!')
