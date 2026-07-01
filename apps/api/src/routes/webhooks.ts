@@ -43,12 +43,14 @@ webhookRoutes.post('/stripe', async (req: Request, res: Response) => {
           console.error(`[Webhook] Invoice ${invoiceId} not found for completed session ${session.id}`)
           break
         }
+        // eslint-disable-next-line no-console
         console.log(`[Webhook] Invoice ${updated.invoiceNumber} marked paid via Stripe session ${session.id}`)
         break
       }
 
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session
+        // eslint-disable-next-line no-console
         console.log(`[Webhook] Checkout session ${session.id} expired without payment`)
         break
       }
@@ -70,6 +72,7 @@ webhookRoutes.post('/stripe', async (req: Request, res: Response) => {
           data:  { stripeOnboarded: onboarded },
         })
         if (updated.count > 0) {
+          // eslint-disable-next-line no-console
           console.log(`[Webhook] Stripe account ${account.id} onboarded=${onboarded}`)
         }
         break

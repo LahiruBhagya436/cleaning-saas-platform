@@ -3,10 +3,11 @@ import { prisma } from '../lib/prisma'
 interface NotificationOptions {
   userId: string
   type:   string
-  data:   Record<string, any>
+  data:   Record<string, unknown>
 }
 
 export async function sendNotification({ userId, type, data }: NotificationOptions) {
+  // eslint-disable-next-line no-console
   console.log(`[Notification] userId=${userId} type=${type}`, data)
 
   try {

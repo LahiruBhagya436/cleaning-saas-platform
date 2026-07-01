@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 interface EmailOptions {
   to:       string
   template: string
-  data:     Record<string, any>
+  data:     Record<string, unknown>
 }
 
 const FROM_EMAIL = process.env.EMAIL_FROM ?? 'bookings@cleaningco.se'
@@ -46,7 +46,7 @@ interface Rendered {
   html:    string
 }
 
-function render(template: string, data: Record<string, any>): Rendered {
+function render(template: string, data: Record<string, unknown>): Rendered {
   switch (template) {
     case 'welcome':
       return {
@@ -142,7 +142,9 @@ export async function sendEmail({ to, template, data }: EmailOptions) {
   const { subject, html } = render(template, data)
 
   if (!resend) {
+    // eslint-disable-next-line no-console
     console.log(`[Email] (RESEND_API_KEY not configured — logging instead) → ${to} | template: ${template}`)
+    // eslint-disable-next-line no-console
     console.log('[Email] data:', JSON.stringify(data, null, 2))
     return { sent: false }
   }
