@@ -6,6 +6,15 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
+  // ── Drop stale single-column unique index if it exists ───────────────────────
+  // Migration 20260514080607 created UNIQUE(name) on services.
+  // The multi-tenant migration added UNIQUE(companyId, name) but never dropped
+  // the old one. This causes P2002 on the name column when upserting services.
+  await prisma.$executeRaw`
+    DROP INDEX IF EXISTS "services_name_key"
+  `
+  console.log('✓ Cleaned up stale services_name_key index')
+
   // ── Demo company ─────────────────────────────────────────────────────────────
   // resolveCompany's single-tenant fallback only works when exactly ONE company
   // exists in the DB. Without this row, every API call that uses resolveCompany
