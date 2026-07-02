@@ -1,7 +1,6 @@
 {
   "root": true,
   "env": { "browser": true, "es2021": true, "node": true },
-  "extends": ["eslint:recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -9,13 +8,6 @@
     "ecmaFeatures": { "jsx": true }
   },
   "rules": {
-    "no-unused-vars": ["warn", {
-      "argsIgnorePattern": "^_",
-      "varsIgnorePattern": "^_",
-      "ignoreRestSiblings": true,
-      "caughtErrors": "none"
-    }],
-    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
-    "no-undef": "off"
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }]
   }
 }
