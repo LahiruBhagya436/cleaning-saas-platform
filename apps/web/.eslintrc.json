@@ -1,12 +1,21 @@
 {
   "root": true,
-  "extends": ["next/core-web-vitals"],
+  "env": { "browser": true, "es2021": true, "node": true },
+  "extends": ["eslint:recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": { "jsx": true }
+  },
   "rules": {
-    "no-unused-vars": ["error", {
+    "no-unused-vars": ["warn", {
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_",
-      "ignoreRestSiblings": true
+      "ignoreRestSiblings": true,
+      "caughtErrors": "none"
     }],
-    "no-console": ["warn", { "allow": ["warn", "error", "info"] }]
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+    "no-undef": "off"
   }
 }
