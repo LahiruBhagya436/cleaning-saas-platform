@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 
 interface NotificationOptions {
@@ -17,7 +18,7 @@ export async function sendNotification({ userId, type, data }: NotificationOptio
         channel:  'push',
         type,
         body:     JSON.stringify(data),
-        metadata: data,
+        metadata: data as Prisma.InputJsonValue,
       },
     })
   } catch (err) {
