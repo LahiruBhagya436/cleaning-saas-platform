@@ -1,5 +1,14 @@
 # Cleaning SaaS Platform
 
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Stripe](https://img.shields.io/badge/Stripe-Connect-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white)](https://cleaning-saas-platform-web.vercel.app)
+[![CI](https://github.com/LahiruBhagya436/cleaning-saas-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/LahiruBhagya436/cleaning-saas-platform/actions)
+
 A multi-tenant booking and operations platform for cleaning companies in
 Sweden — built end-to-end with Next.js, Express, Prisma, and Stripe Connect.
 Each company gets its own customers, staff, bookings, invoicing, and
@@ -7,6 +16,14 @@ RUT-avdrag (Swedish tax deduction) handling, fully isolated from every other
 company on the platform.
 
 **Live demo:** https://cleaning-saas-platform-web.vercel.app
+
+---
+
+## Screenshots
+
+| Homepage | Booking flow |
+|---|---|
+| ![Homepage](docs/screenshots/01-homepage.jpg) | ![Booking flow](docs/screenshots/02-booking-flow.jpg) |
 
 ---
 
