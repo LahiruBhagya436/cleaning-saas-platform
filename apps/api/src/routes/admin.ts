@@ -7,6 +7,8 @@ import { prisma } from '../lib/prisma'
 import { AppError } from '../middleware/errorHandler'
 import { authenticate, requireAdmin, requireSupervisor } from '../middleware/auth'
 import { sendEmail } from '../services/email'
+import { sendNotification } from '../services/notifications'
+import { sendSms } from '../services/sms'
 
 export const adminRoutes = Router()
 // Only `authenticate` here — each route below picks the right gate itself:
@@ -100,10 +102,35 @@ adminRoutes.patch('/bookings/:id/assign', requireSupervisor, async (req: Request
       },
       include: {
         customer: { select: { fullName: true, email: true } },
-        staff:    { select: { id: true, fullName: true } },
+        staff:    { select: { id: true, fullName: true, email: true, phone: true } },
         property: true,
       },
     })
+
+    // Notify the assigned worker: in-app notification + email + SMS
+    if (staffId && updated.staff) {
+      const whenLabel = new Date(updated.scheduledAt).toISOString().slice(0, 16).replace('T', ' ')
+      const address = updated.property
+        ? [updated.property.addressLine1, updated.property.city].filter(Boolean).join(', ')
+        : ''
+      const notifyData = {
+        bookingId:    updated.id,
+        customerName: updated.customer?.fullName ?? 'Kund',
+        scheduledAt:  updated.scheduledAt,
+        whenLabel,
+        address,
+      }
+      await sendNotification({ userId: updated.staff.id, type: 'shift_assigned', data: notifyData })
+      sendEmail({
+        to:       updated.staff.email,
+        template: 'shift_assigned',
+        data:     { staffName: updated.staff.fullName, ...notifyData },
+      }).catch(() => {})
+      sendSms({
+        to:   updated.staff.phone,
+        body: `Nytt staduppdrag ${whenLabel}${address ? ' - ' + address : ''}. Logga in for detaljer.`,
+      }).catch(() => {})
+    }
 
     res.json({ success: true, data: updated })
   } catch (err) { next(err) }
@@ -191,6 +218,64 @@ adminRoutes.post('/staff/:id/schedule', requireSupervisor, async (req: Request, 
     })
 
     res.status(201).json({ success: true, data: schedule })
+  } catch (err) { next(err) }
+})
+
+// ── POST /admin/staff/:id/schedule/bulk ───────────────────────────────────────
+// Open availability across a whole date range in one action (selected weekdays).
+
+const bulkScheduleSchema = z.object({
+  startDate:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate:     z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  weekdays:    z.array(z.number().int().min(0).max(6)).min(1), // 0=Sun … 6=Sat
+  startTime:   z.string().regex(/^\d{2}:\d{2}$/),
+  endTime:     z.string().regex(/^\d{2}:\d{2}$/),
+  isAvailable: z.boolean().default(true),
+})
+
+adminRoutes.post('/staff/:id/schedule/bulk', requireSupervisor, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body = bulkScheduleSchema.parse(req.body)
+
+    const staff = await prisma.user.findFirst({ where: { id: req.params.id, role: 'staff', companyId: req.user!.companyId } })
+    if (!staff) throw new AppError('NOT_FOUND', 'Staff member not found', 404)
+
+    if (hoursBetween(body.startTime, body.endTime) <= 0) {
+      throw new AppError('INVALID_RANGE', 'End time must be after start time', 400)
+    }
+
+    const startMs = new Date(body.startDate + 'T00:00:00Z').getTime()
+    const endMs   = new Date(body.endDate + 'T00:00:00Z').getTime()
+    if (Number.isNaN(startMs) || Number.isNaN(endMs) || endMs < startMs) {
+      throw new AppError('INVALID_RANGE', 'End date must be on or after start date', 400)
+    }
+
+    const DAY = 86_400_000
+    const MAX_DAYS = 366
+    const weekdays = new Set(body.weekdays)
+    const workDates: Date[] = []
+    for (let i = 0; i <= MAX_DAYS; i++) {
+      const ms = startMs + i * DAY
+      if (ms > endMs) break
+      const d = new Date(ms)
+      if (weekdays.has(d.getUTCDay())) workDates.push(d)
+    }
+
+    if (workDates.length === 0) {
+      return res.json({ success: true, data: { count: 0 } })
+    }
+
+    await prisma.$transaction(
+      workDates.map((workDate) =>
+        prisma.staffSchedule.upsert({
+          where:  { staffId_workDate: { staffId: staff.id, workDate } },
+          update: { startTime: body.startTime, endTime: body.endTime, isAvailable: body.isAvailable },
+          create: { staffId: staff.id, workDate, startTime: body.startTime, endTime: body.endTime, isAvailable: body.isAvailable },
+        })
+      )
+    )
+
+    res.status(201).json({ success: true, data: { count: workDates.length } })
   } catch (err) { next(err) }
 })
 

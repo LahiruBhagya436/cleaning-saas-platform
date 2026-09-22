@@ -200,6 +200,17 @@ export const adminApi = {
   }) =>
     api.post<any, ApiResponse<any>>(`/admin/staff/${staffId}/schedule`, data),
 
+  // Open availability across a date range (selected weekdays) in one call
+  addStaffScheduleBulk: (staffId: string, data: {
+    startDate: string
+    endDate: string
+    weekdays: number[]
+    startTime: string
+    endTime: string
+    isAvailable?: boolean
+  }) =>
+    api.post<any, ApiResponse<{ count: number }>>(`/admin/staff/${staffId}/schedule/bulk`, data),
+
   deleteStaffSchedule: (staffId: string, scheduleId: string) =>
     api.delete(`/admin/staff/${staffId}/schedule/${scheduleId}`),
 
@@ -243,6 +254,27 @@ export const adminApi = {
 
   deleteWorker: (id: string) =>
     api.delete<any, ApiResponse<any>>(`/admin/workers/${id}`),
+}
+
+// Worker self-service (own jobs + own availability)
+export const staffApi = {
+  myJobsToday: () =>
+    api.get<any, ApiResponse<any[]>>('/staff/me/jobs/today'),
+
+  mySchedule: () =>
+    api.get<any, ApiResponse<any[]>>('/staff/me/schedule'),
+
+  addMyDay: (data: { workDate: string; startTime: string; endTime: string; isAvailable?: boolean }) =>
+    api.post<any, ApiResponse<any>>('/staff/me/schedule', data),
+
+  addMyRange: (data: {
+    startDate: string; endDate: string; weekdays: number[]
+    startTime: string; endTime: string; isAvailable?: boolean
+  }) =>
+    api.post<any, ApiResponse<{ count: number }>>('/staff/me/schedule/bulk', data),
+
+  deleteMyDay: (scheduleId: string) =>
+    api.delete(`/staff/me/schedule/${scheduleId}`),
 }
 
 // ── Stripe Connect (per-company payment onboarding) ───────────────────────────
