@@ -33,18 +33,19 @@ export async function resolveCompany(req: Request, _res: Response, next: NextFun
     const bodySlug = (req.body?.companySlug as string | undefined)?.trim()
     let slug = headerSlug || bodySlug
 
+    // Strip the port (e.g. "localhost:4000" -> "localhost") before matching,
+    // otherwise a local dev request with a port in the Host header slips
+    // past the "localhost" / IP checks below and gets misread as a slug.
+    const host = (req.headers.host ?? '').split(':')[0]
+    // Infra/platform hosts (PaaS default domains, IPs, localhost) are never
+    // tenant subdomains — treating them as one breaks single-tenant deployments
+    // hosted directly on a provider's *.onrender.com / *.vercel.app domain.
+    const isInfraHost =
+      /\.(onrender\.com|render\.com|vercel\.app|herokuapp\.com|railway\.app|fly\.dev|run\.app)$/i.test(host) ||
+      host === 'localhost' ||
+      /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+
     if (!slug) {
-      // Strip the port (e.g. "localhost:4000" -> "localhost") before matching,
-      // otherwise a local dev request with a port in the Host header slips
-      // past the "localhost" / IP checks below and gets misread as a slug.
-      const host = (req.headers.host ?? '').split(':')[0]
-      // Infra/platform hosts (PaaS default domains, IPs, localhost) are never
-      // tenant subdomains — treating them as one breaks single-tenant deployments
-      // hosted directly on a provider's *.onrender.com / *.vercel.app domain.
-      const isInfraHost =
-        /\.(onrender\.com|render\.com|vercel\.app|herokuapp\.com|railway\.app|fly\.dev|run\.app)$/i.test(host) ||
-        host === 'localhost' ||
-        /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
       const sub = host.split('.')[0]
       if (!isInfraHost && sub && sub !== 'www' && sub !== 'localhost' && !sub.match(/^\d+$/)) {
         slug = sub
@@ -59,9 +60,23 @@ export async function resolveCompany(req: Request, _res: Response, next: NextFun
       return next()
     }
 
-    // Dev/back-compat fallback: single-tenant deployments
-    const companies = await prisma.company.findMany({ select: { id: true }, take: 2 })
+    // Fallback when no slug / subdomain / auth identified a tenant.
+    // Order by creation so the first row is the platform's primary (oldest) company.
+    const companies = await prisma.company.findMany({
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+      take: 2,
+    })
+    // Single-tenant deployment: only one company, always use it.
     if (companies.length === 1) {
+      req.companyId = companies[0].id
+      return next()
+    }
+    // Multi-tenant, but the request hit the platform's own apex / infra host
+    // (e.g. *.vercel.app / *.onrender.com) rather than a tenant subdomain.
+    // The apex domain is the platform's public marketing + booking site, so
+    // default it to the primary (oldest) company instead of returning 400.
+    if (companies.length >= 1 && isInfraHost) {
       req.companyId = companies[0].id
       return next()
     }
