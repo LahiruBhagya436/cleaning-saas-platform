@@ -110,7 +110,7 @@ export default function BookingDetailPage() {
             </Badge>
           </div>
           <h1 className="font-display text-2xl text-white">
-            {booking.items?.[0]?.service?.nameSv ?? 'Cleaning'}
+            {booking.items?.[0]?.service?.name ?? 'Cleaning'}
           </h1>
           <p className="text-brand-200 text-sm mt-1">
             Boknings-ID: <span className="font-mono">{booking.id.slice(0, 8).toUpperCase()}</span>

@@ -144,7 +144,7 @@ export default function BookingsPage() {
                         {status?.label ?? booking.status}
                       </Badge>
                       <span className="text-sm font-medium text-neutral-900">
-                        {booking.items?.[0]?.service?.nameSv ?? 'Cleaning'}
+                        {booking.items?.[0]?.service?.name ?? 'Cleaning'}
                       </span>
                     </div>
 

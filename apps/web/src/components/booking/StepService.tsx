@@ -67,7 +67,7 @@ export function StepService({ data, update, onNext }: Props) {
   const selectService = (svc: any) => {
     update({
       serviceId:       svc.id,
-      serviceName:     svc.nameSv,
+      serviceName:     svc.name,
       servicePriceSEK: Number(svc.basePricePerHour),
       rutEligible:     svc.rutEligible,
     })
@@ -125,7 +125,7 @@ export function StepService({ data, update, onNext }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-sm font-medium text-neutral-900">
-                      {svc.nameSv}
+                      {svc.name}
                     </span>
                     {svc.rutEligible && (
                       <span className="text-2xs font-medium text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded-full">
@@ -133,7 +133,7 @@ export function StepService({ data, update, onNext }: Props) {
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-neutral-400">{svc.name}</span>
+                  <span className="text-xs text-neutral-400">{svc.nameSv}</span>
                 </div>
 
                 {/* Price */}
