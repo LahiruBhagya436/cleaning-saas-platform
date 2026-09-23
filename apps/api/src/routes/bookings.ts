@@ -41,52 +41,25 @@ bookingRoutes.get('/availability', async (req: Request, res: Response, next: Nex
   try {
     const query = availabilitySchema.parse(req.query)
     const date = new Date(query.date)
-    const dayStart = new Date(date); dayStart.setHours(7, 0, 0, 0)
-    const dayEnd   = new Date(date); dayEnd.setHours(20, 0, 0, 0)
-
-    const companyId = req.companyId!
-
-    // Find all available staff for this date (same company only)
-    const schedules = await prisma.staffSchedule.findMany({
-      where: { workDate: date, isAvailable: true, staff: { companyId } },
-      include: { staff: true },
-    })
-
-    // Get bookings for this day to check conflicts
-    const existingBookings = await prisma.booking.findMany({
-      where: {
-        companyId,
-        scheduledAt: { gte: dayStart, lte: dayEnd },
-        status: { notIn: ['cancelled'] },
-      },
-    })
-
-    // Generate 1-hour slots from 07:00 to 18:00
-    const slots = []
     const slotDuration = query.durationMinutes
-    for (let h = 7; h <= 18; h++) {
+
+    // Open booking model: any slot from 08:00 to 17:00 is bookable, every day of
+    // the week. A worker is assigned by an admin after the customer books, so
+    // customer availability is NOT gated by staff schedules.
+    const OPEN_HOUR  = 8
+    const CLOSE_HOUR = 17
+    const closeAt = new Date(date); closeAt.setHours(CLOSE_HOUR, 0, 0, 0)
+
+    const slots = []
+    for (let h = OPEN_HOUR; h < CLOSE_HOUR; h++) {
       const slotStart = new Date(date); slotStart.setHours(h, 0, 0, 0)
       const slotEnd   = new Date(slotStart.getTime() + slotDuration * 60000)
-      if (slotEnd > dayEnd) break
-
-      // Count available staff at this time
-      const busyStaffIds = new Set(
-        existingBookings
-          .filter(b => {
-            const bStart = new Date(b.scheduledAt)
-            const bEnd = new Date(b.estimatedEndAt)
-            return bStart < slotEnd && bEnd > slotStart
-          })
-          .map(b => b.staffId)
-          .filter(Boolean)
-      )
-
-      const availableStaff = schedules.filter(s => !busyStaffIds.has(s.staffId))
+      if (slotEnd > closeAt) break
       slots.push({
-        startTime: slotStart.toISOString(),
-        endTime:   slotEnd.toISOString(),
-        available: availableStaff.length > 0,
-        staffCount: availableStaff.length,
+        startTime:  slotStart.toISOString(),
+        endTime:    slotEnd.toISOString(),
+        available:  true,
+        staffCount: 1,
       })
     }
 

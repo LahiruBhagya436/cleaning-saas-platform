@@ -81,6 +81,8 @@ function LoginForm() {
         router.push('/platform')
       } else if (role === 'admin' || role === 'coordinator') {
         router.push('/admin')
+      } else if (role === 'staff') {
+        router.push('/worker')
       } else {
         router.push(callbackUrl)
       }

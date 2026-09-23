@@ -86,6 +86,21 @@ function render(template: string, data: Record<string, unknown>): Rendered {
         `),
       }
 
+    case 'shift_assigned':
+      return {
+        subject: `Nytt staduppdrag - ${data.whenLabel ?? ''}`,
+        html: wrap('Du har fatt ett nytt uppdrag', `
+          <p>Hej ${escapeHtml(data.staffName)},</p>
+          <p>Du har tilldelats ett nytt staduppdrag.</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr><td style="padding: 6px 0; color: #666;">Datum &amp; tid</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.whenLabel)}</td></tr>
+            ${data.address ? `<tr><td style="padding: 6px 0; color: #666;">Adress</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.address)}</td></tr>` : ''}
+            ${data.customerName ? `<tr><td style="padding: 6px 0; color: #666;">Kund</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.customerName)}</td></tr>` : ''}
+          </table>
+          <p>Logga in pa ditt konto for att se alla detaljer.</p>
+        `),
+      }
+
     case 'invoice':
       return {
         subject: `Faktura ${data.invoiceNumber} från Stockholm Cleaning Co.`,

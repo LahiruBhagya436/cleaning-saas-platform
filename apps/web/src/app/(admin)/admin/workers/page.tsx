@@ -169,6 +169,35 @@ function WorkerRow({
   const [endTime,   setEndTime]   = useState('17:00')
   const [saving,    setSaving]    = useState(false)
 
+  // Date-range (bulk) availability
+  const [rangeOpen,  setRangeOpen]  = useState(false)
+  const [rStart,     setRStart]     = useState('')
+  const [rEnd,       setREnd]       = useState('')
+  const [rDays,      setRDays]      = useState<number[]>([1, 2, 3, 4, 5])
+  const [rStartTime, setRStartTime] = useState('08:00')
+  const [rEndTime,   setREndTime]   = useState('17:00')
+  const [rSaving,    setRSaving]    = useState(false)
+
+  const submitRange = async () => {
+    if (!rStart || !rEnd) { toast.error('Välj start- och slutdatum.'); return }
+    if (rDays.length === 0) { toast.error('Välj minst en veckodag.'); return }
+    setRSaving(true)
+    try {
+      const res = await adminApi.addStaffScheduleBulk(worker.id, {
+        startDate: rStart, endDate: rEnd, weekdays: rDays,
+        startTime: rStartTime, endTime: rEndTime, isAvailable: true,
+      })
+      toast.success(`${res.data?.count ?? 0} schemadagar tillagda.`)
+      setRStart(''); setREnd('')
+      onScheduleAdded()
+      setRangeOpen(false)
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Kunde inte spara datumintervall.')
+    } finally {
+      setRSaving(false)
+    }
+  }
+
   const submitSchedule = async () => {
     if (!workDate) { toast.error('Välj ett datum.'); return }
     setSaving(true)
@@ -315,12 +344,20 @@ function WorkerRow({
                 </ul>
               )}
               {canManage && (
-                <button
-                  onClick={onToggleSchedule}
-                  className="mt-2 text-xs text-brand-600 hover:underline flex items-center gap-1"
-                >
-                  <Plus size={11} /> Lägg till schemadag
-                </button>
+                <div className="mt-2 flex flex-wrap items-center gap-4">
+                  <button
+                    onClick={onToggleSchedule}
+                    className="text-xs text-brand-600 hover:underline flex items-center gap-1"
+                  >
+                    <Plus size={11} /> Lägg till schemadag
+                  </button>
+                  <button
+                    onClick={() => setRangeOpen((v) => !v)}
+                    className="text-xs text-brand-600 hover:underline flex items-center gap-1"
+                  >
+                    <CalendarDays size={11} /> Lägg till datumintervall
+                  </button>
+                </div>
               )}
               {scheduleOpen && (
                 <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-lg p-3 space-y-2">
@@ -342,6 +379,51 @@ function WorkerRow({
                     </div>
                   </div>
                   <Button size="sm" onClick={submitSchedule} loading={saving}>Spara dag</Button>
+                </div>
+              )}
+              {rangeOpen && (
+                <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-lg p-3 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-0.5">Från datum</label>
+                      <input type="date" value={rStart} onChange={(e) => setRStart(e.target.value)}
+                        className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-0.5">Till datum</label>
+                      <input type="date" value={rEnd} onChange={(e) => setREnd(e.target.value)}
+                        className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-0.5">Start</label>
+                      <input type="time" value={rStartTime} onChange={(e) => setRStartTime(e.target.value)}
+                        className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-0.5">Slut</label>
+                      <input type="time" value={rEndTime} onChange={(e) => setREndTime(e.target.value)}
+                        className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1">Veckodagar</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {([['Mån', 1], ['Tis', 2], ['Ons', 3], ['Tor', 4], ['Fre', 5], ['Lör', 6], ['Sön', 0]] as [string, number][]).map(([lbl, num]) => {
+                        const on = rDays.includes(num)
+                        return (
+                          <button key={num} type="button"
+                            onClick={() => setRDays(on ? rDays.filter((x) => x !== num) : [...rDays, num])}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${on ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'}`}>
+                            {lbl}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  <p className="text-xs text-neutral-400">
+                    Skapar tillgängliga dagar för alla valda veckodagar i intervallet — kunder kan då boka dessa tider.
+                  </p>
+                  <Button size="sm" onClick={submitRange} loading={rSaving}>Spara intervall</Button>
                 </div>
               )}
             </div>
