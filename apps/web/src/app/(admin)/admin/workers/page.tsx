@@ -504,7 +504,7 @@ function WorkerForm({
   const [email,            setEmail]            = useState('')
   const [phone,            setPhone]            = useState('')
   const [role,             setRole]             = useState<'staff' | 'coordinator'>('staff')
-  const [personnummer,     setPersonal ID]     = useState('')
+  const [personnummer,     setPersonnummer]     = useState('')
   const [addressLine1,     setAddressLine1]     = useState('')
   const [city,             setCity]             = useState('')
   const [postalCode,       setPostalCode]       = useState('')
@@ -705,7 +705,7 @@ function WorkerForm({
       <FormSection title="Sensitive details" hint="Encrypted and stored securely">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormField label={isEdit ? 'Personal ID (leave blank = keep)' : 'Personal ID'}>
-            <input value={personnummer} onChange={(e) => setPersonal ID(e.target.value)}
+            <input value={personnummer} onChange={(e) => setPersonnummer(e.target.value)}
               className="form-input" placeholder="YYMMDD-XXXX" />
           </FormField>
           <FormField label="Clearing number (bank)">
