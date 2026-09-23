@@ -45,7 +45,7 @@ const INITIAL: BookingData = {
   totalExclVat: 0, vatAmount: 0, rutDeduction: 0, customerPays: 0,
 }
 
-const STEPS = ['Tjänst', 'Adress', 'Datum & tid', 'Bekräfta']
+const STEPS = ['Service', 'Address', 'Date & time', 'Confirm']
 
 export default function BookPage() {
   const router         = useRouter()
@@ -72,7 +72,7 @@ export default function BookPage() {
 
   const submit = async () => {
     if (!session) {
-      toast.error('Du måste logga in för att boka.')
+      toast.error('You must log in to book.')
       router.push('/login?callbackUrl=/book')
       return
     }
@@ -89,7 +89,7 @@ export default function BookPage() {
       setBooking(result.data)
       setStep(4) // success screen
     } catch (err: any) {
-      toast.error(err?.message ?? 'Bokning misslyckades. Försök igen.')
+      toast.error(err?.message ?? 'Booking failed. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -108,10 +108,10 @@ export default function BookPage() {
         {/* Page title */}
         <div className="mb-8 text-center">
           <h1 className="font-display text-3xl text-neutral-900 mb-2">
-            Boka städning
+            Book cleaning
           </h1>
           <p className="text-neutral-500 text-sm">
-            Klar på 3 enkla steg · RUT-avdrag beräknas automatiskt
+            Done in 3 easy steps · RUT deduction calculated automatically
           </p>
         </div>
 

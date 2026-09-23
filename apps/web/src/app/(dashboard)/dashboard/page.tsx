@@ -15,10 +15,10 @@ export default function DashboardPage() {
       {/* Welcome */}
       <div>
         <h1 className="font-display text-2xl text-neutral-900 mb-1">
-          Hej, {firstName}!
+          Hi, {firstName}!
         </h1>
         <p className="text-neutral-500 text-sm">
-          Hantera dina bokningar och fakturor här.
+          Manage your bookings and invoices here.
         </p>
       </div>
 
@@ -32,8 +32,8 @@ export default function DashboardPage() {
             <CalendarDays size={18} className="text-white" />
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Boka städning</p>
-            <p className="text-xs text-brand-200">Ny bokning på 60 sek</p>
+            <p className="text-sm font-medium text-white">Book cleaning</p>
+            <p className="text-xs text-brand-200">New booking in 60 sec</p>
           </div>
         </Link>
 
@@ -45,8 +45,8 @@ export default function DashboardPage() {
             <FileText size={18} className="text-neutral-600" />
           </div>
           <div>
-            <p className="text-sm font-medium text-neutral-900">Mina fakturor</p>
-            <p className="text-xs text-neutral-400">Ladda ner PDF</p>
+            <p className="text-sm font-medium text-neutral-900">My invoices</p>
+            <p className="text-xs text-neutral-400">Download PDF</p>
           </div>
         </Link>
 
@@ -58,8 +58,8 @@ export default function DashboardPage() {
             <Star size={18} className="text-neutral-600" />
           </div>
           <div>
-            <p className="text-sm font-medium text-neutral-900">Mina bokningar</p>
-            <p className="text-xs text-neutral-400">Se alla bokningar</p>
+            <p className="text-sm font-medium text-neutral-900">My bookings</p>
+            <p className="text-xs text-neutral-400">See all bookings</p>
           </div>
         </Link>
       </div>
@@ -68,28 +68,28 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-sans font-medium text-neutral-900">
-            Kommande bokningar
+            Upcoming bookings
           </h2>
           <Link
             href="/dashboard/bookings"
             className="text-xs text-brand-600 hover:underline flex items-center gap-1"
           >
-            Se alla <ArrowRight size={12} />
+            See all <ArrowRight size={12} />
           </Link>
         </div>
 
         <div className="bg-white rounded-xl border border-dashed border-neutral-200 p-10 text-center">
           <CalendarDays size={32} className="text-neutral-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-neutral-700 mb-1">
-            Inga kommande bokningar
+            No upcoming bookings
           </p>
           <p className="text-xs text-neutral-400 mb-5">
-            Boka din första städning idag och ta del av RUT-avdraget.
+            Book your first cleaning today and take advantage of the RUT deduction.
           </p>
           <Button size="sm" asChild>
             <Link href="/book">
               <Plus size={14} />
-              Boka nu
+              Book now
             </Link>
           </Button>
         </div>
@@ -102,12 +102,12 @@ export default function DashboardPage() {
         </div>
         <div>
           <p className="text-sm font-medium text-teal-800 mb-1">
-            Spara 50% med RUT-avdrag
+            Save 50% with RUT deduction
           </p>
           <p className="text-xs text-teal-600 leading-relaxed">
-            Alla hushållstjänster är berättigade till RUT-avdrag — du betalar
-            bara hälften av arbetskostnaden. Vi hanterar ansökan till
-            Skatteverket automatiskt.
+            All household services are eligible for the RUT deduction — you pay
+            only half the labour cost. We handle the claim to
+            Skatteverket automatically.
           </p>
         </div>
       </div>

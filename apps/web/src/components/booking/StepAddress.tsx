@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils'
 import type { BookingData } from '@/app/book/page'
 
 const newAddressSchema = z.object({
-  addressLine1: z.string().min(5, 'Ange fullständig gatuadress'),
-  postalCode:   z.string().min(5, 'Ange postnummer').max(10),
-  city:         z.string().min(2, 'Ange stad'),
+  addressLine1: z.string().min(5, 'Enter your full street address'),
+  postalCode:   z.string().min(5, 'Enter postal code').max(10),
+  city:         z.string().min(2, 'Enter city'),
   notes:        z.string().max(500).optional(),
 })
 type NewAddressForm = z.infer<typeof newAddressSchema>
@@ -107,7 +107,7 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
   return (
     <div className="space-y-6">
       <h2 className="font-sans font-medium text-neutral-900">
-        Välj städadress
+        Choose cleaning address
       </h2>
 
       {/* Saved properties */}
@@ -159,18 +159,18 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
           className="w-full flex items-center gap-3 p-4 rounded-xl border border-dashed border-neutral-300 text-neutral-500 hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50 transition-all"
         >
           <Plus size={18} />
-          <span className="text-sm font-medium">Lägg till ny adress</span>
+          <span className="text-sm font-medium">Add new address</span>
         </button>
       )}
 
       {/* New address form */}
       {showForm && (
         <div className="bg-white border border-neutral-200 rounded-xl p-5 space-y-4">
-          <h3 className="text-sm font-medium text-neutral-900">Ny adress</h3>
+          <h3 className="text-sm font-medium text-neutral-900">New address</h3>
 
           <form onSubmit={handleSubmit(saveAndSelect)} className="space-y-4">
             <div>
-              <Label htmlFor="addressLine1">Gatuadress</Label>
+              <Label htmlFor="addressLine1">Street address</Label>
               <Input
                 id="addressLine1"
                 placeholder="Drottninggatan 45"
@@ -184,7 +184,7 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="postalCode">Postnummer</Label>
+                <Label htmlFor="postalCode">Postal code</Label>
                 <Input
                   id="postalCode"
                   placeholder="111 21"
@@ -196,7 +196,7 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
                 )}
               </div>
               <div>
-                <Label htmlFor="city">Stad</Label>
+                <Label htmlFor="city">City</Label>
                 <Input
                   id="city"
                   placeholder="Stockholm"
@@ -211,12 +211,12 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
 
             <div>
               <Label htmlFor="notes">
-                Anteckningar{' '}
-                <span className="text-neutral-400 font-normal">(valfritt)</span>
+                Notes{' '}
+                <span className="text-neutral-400 font-normal">(optional)</span>
               </Label>
               <Input
                 id="notes"
-                placeholder="T.ex. portkod 1234, 3:e våning"
+                placeholder="e.g. door code 1234, 3rd floor"
                 {...register('notes')}
               />
             </div>
@@ -229,11 +229,11 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
                   size="sm"
                   onClick={() => setShowForm(false)}
                 >
-                  Avbryt
+                  Cancel
                 </Button>
               )}
               <Button type="submit" size="sm" loading={saving} className="flex-1">
-                Spara adress
+                Save address
               </Button>
             </div>
           </form>
@@ -244,12 +244,12 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
       {canContinue && !showForm && (
         <div>
           <Label htmlFor="booking-notes">
-            Övriga önskemål{' '}
-            <span className="text-neutral-400 font-normal">(valfritt)</span>
+            Other requests{' '}
+            <span className="text-neutral-400 font-normal">(optional)</span>
           </Label>
           <Input
             id="booking-notes"
-            placeholder="T.ex. allergiker, husdjur, speciella instruktioner"
+            placeholder="e.g. allergies, pets, special instructions"
             value={data.notes}
             onChange={(e) => update({ notes: e.target.value })}
           />
@@ -260,7 +260,7 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft size={16} />
-          Tillbaka
+          Back
         </Button>
         <Button
           className="flex-1 group"
@@ -268,7 +268,7 @@ export function StepAddress({ data, update, onNext, onBack, session }: Props) {
           disabled={!canContinue}
           onClick={onNext}
         >
-          Fortsätt — välj datum
+          Continue — choose date
           <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
         </Button>
       </div>

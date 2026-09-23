@@ -18,19 +18,19 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed text-neutral-500">
-              Professionell städning i Stockholm. RUT-avdrag — du betalar bara hälften.
+              Professional cleaning in Stockholm. RUT deduction — you pay only half.
             </p>
             <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-teal-400 bg-teal-900/40 px-2.5 py-1 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-              Godkänd för F-skatt
+              Approved for F-tax
             </div>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="text-sm font-medium text-white mb-4">Tjänster</h4>
+            <h4 className="text-sm font-medium text-white mb-4">Services</h4>
             <ul className="space-y-2.5 text-sm">
-              {['Hemstädning', 'Storstädning', 'Flyttstädning', 'Fönsterputning', 'Kontorstädning', 'Byggstädning'].map(s => (
+              {['Home cleaning', 'Deep cleaning', 'Move-out cleaning', 'Window cleaning', 'Office cleaning', 'Post-construction cleaning'].map(s => (
                 <li key={s}>
                   <Link href="/services" className="hover:text-neutral-200 transition-colors">{s}</Link>
                 </li>
@@ -40,9 +40,9 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="text-sm font-medium text-white mb-4">Företaget</h4>
+            <h4 className="text-sm font-medium text-white mb-4">Company</h4>
             <ul className="space-y-2.5 text-sm">
-              {[['Om oss','/about'],['Priser','/pricing'],['Recensioner','/reviews'],['Arbeta hos oss','/careers'],['Integritetspolicy','/privacy']].map(([label, href]) => (
+              {[['About','/about'],['Pricing','/pricing'],['Reviews','/reviews'],['Careers','/careers'],['Privacy policy','/privacy']].map(([label, href]) => (
                 <li key={label}>
                   <Link href={href} className="hover:text-neutral-200 transition-colors">{label}</Link>
                 </li>
@@ -52,7 +52,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-medium text-white mb-4">Kontakt</h4>
+            <h4 className="text-sm font-medium text-white mb-4">Contact</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2.5">
                 <Phone size={14} className="text-neutral-500" />
@@ -73,7 +73,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-10 border-t border-neutral-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-600">
           <p>© {new Date().getFullYear()} Stockholm Cleaning Co. AB · Org.nr 556000-0000</p>
-          <p>Godkänd RUT-leverantör · F-skatt · Ansvarsförsäkrad</p>
+          <p>Approved RUT provider · F-tax · Insured</p>
         </div>
       </div>
     </footer>

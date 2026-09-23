@@ -39,7 +39,7 @@ userRoutes.patch('/me', async (req: Request, res: Response, next: NextFunction) 
     if (personnummer) {
       const normalized = normalizePersonnummer(personnummer)
       if (!normalized) {
-        throw new AppError('VALIDATION_ERROR', 'Ange ett giltigt personnummer (ÅÅMMDD-XXXX eller ÅÅÅÅMMDD-XXXX)', 422)
+        throw new AppError('VALIDATION_ERROR', 'Enter a valid personal identity number (YYMMDD-XXXX or YYYYMMDD-XXXX)', 422)
       }
       data.personnummerEnc = encryptField(normalized)
     }

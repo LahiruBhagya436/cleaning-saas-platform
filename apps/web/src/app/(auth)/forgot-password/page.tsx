@@ -11,7 +11,7 @@ import { Input, Label } from '@/components/ui/index'
 import { authApi } from '@/lib/api'
 
 const schema = z.object({
-  email: z.string().email('Ange en giltig e-postadress'),
+  email: z.string().email('Enter a valid email address'),
 })
 type FormData = z.infer<typeof schema>
 
@@ -44,20 +44,20 @@ export default function ForgotPasswordPage() {
           <Mail size={24} className="text-teal-600" />
         </div>
         <h1 className="font-display text-3xl text-neutral-900 mb-3">
-          Kolla din e-post
+          Check your email
         </h1>
         <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
-          Vi har skickat en länk för att återställa lösenordet till{' '}
+          We've sent a link to reset your password to{' '}
           <span className="font-medium text-neutral-700">{sentEmail}</span>.
-          Länken är giltig i 1 timme.
+          The link is valid for 1 hour.
         </p>
         <p className="text-xs text-neutral-400 mb-8">
-          Hittade du inget e-post? Kolla din skräppostmapp.
+          Didn't get the email? Check your spam folder.
         </p>
         <Button variant="outline" className="w-full" asChild>
           <Link href="/login">
             <ArrowLeft size={16} />
-            Tillbaka till inloggning
+            Back to login
           </Link>
         </Button>
       </div>
@@ -72,23 +72,23 @@ export default function ForgotPasswordPage() {
           className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 transition-colors mb-6"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          Back
         </Link>
         <h1 className="font-display text-3xl text-neutral-900 mb-2">
-          Glömt lösenord?
+          Forgot password?
         </h1>
         <p className="text-sm text-neutral-500">
-          Ange din e-postadress så skickar vi en länk för att återställa ditt lösenord.
+          Enter your email and we'll send you a link to reset your password.
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div>
-          <Label htmlFor="email">E-postadress</Label>
+          <Label htmlFor="email">Email address</Label>
           <Input
             id="email"
             type="email"
-            placeholder="din@email.se"
+            placeholder="you@email.com"
             autoComplete="email"
             autoFocus
             error={errors.email?.message}
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
           size="lg"
           loading={isSubmitting}
         >
-          Skicka återställningslänk
+          Send reset link
         </Button>
       </form>
     </div>

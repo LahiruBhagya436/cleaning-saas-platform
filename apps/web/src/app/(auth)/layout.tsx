@@ -33,9 +33,9 @@ export default function AuthLayout({
         {/* Center quote */}
         <div className="relative space-y-6">
           <blockquote className="font-display text-3xl text-white leading-snug">
-            "Skinande rent hem —<br />
-            du betalar bara hälften<br />
-            med RUT-avdrag."
+            "A spotless home —<br />
+            you pay only half<br />
+            with RUT deduction."
           </blockquote>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-display text-lg">
@@ -58,9 +58,9 @@ export default function AuthLayout({
         {/* Bottom stats */}
         <div className="relative grid grid-cols-3 gap-6 border-t border-brand-500 pt-8">
           {[
-            { value: '2 000+', label: 'Nöjda kunder' },
-            { value: '4.9/5',  label: 'Genomsnittligt betyg' },
-            { value: '50%',    label: 'Besparing med RUT' },
+            { value: '2 000+', label: 'Satisfied customers' },
+            { value: '4.9/5',  label: 'Average rating' },
+            { value: '50%',    label: 'Savings with RUT' },
           ].map(({ value, label }) => (
             <div key={label}>
               <p className="font-display text-2xl text-white">{value}</p>

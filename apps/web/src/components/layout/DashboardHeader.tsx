@@ -20,9 +20,9 @@ export function DashboardHeader() {
     <header className="h-16 border-b border-neutral-200 bg-white flex items-center justify-between px-6 sticky top-0 z-10">
       <div className="flex items-center gap-4">
         <p className="text-sm font-medium text-neutral-700 hidden md:block">
-          Välkommen tillbaka,{' '}
+          Welcome back,{' '}
           <span className="text-neutral-900">
-            {name.split(' ')[0] || 'kund'}
+            {name.split(' ')[0] || 'there'}
           </span>
         </p>
       </div>
@@ -32,7 +32,7 @@ export function DashboardHeader() {
         <Button size="sm" asChild>
           <Link href="/book">
             <Plus size={14} />
-            Ny bokning
+            New booking
           </Link>
         </Button>
 
@@ -72,13 +72,13 @@ export function DashboardHeader() {
                   className="flex items-center px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Inställningar
+                  Settings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  Logga ut
+                  Log out
                 </button>
               </div>
             </>

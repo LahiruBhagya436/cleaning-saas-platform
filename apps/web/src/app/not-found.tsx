@@ -16,16 +16,16 @@ const LINKS = [
   },
   {
     icon: CalendarPlus,
-    label: 'Boka städning',
-    desc:  'Boka på 60 sekunder',
+    label: 'Book cleaning',
+    desc:  'Book in 60 seconds',
     href:  '/book',
     color: 'text-teal-500',
     bg:    'bg-teal-50',
   },
   {
     icon: Layers,
-    label: 'Tjänster',
-    desc:  'Se alla tjänster & priser',
+    label: 'Services',
+    desc:  'See all services & prices',
     href:  '/services',
     color: 'text-brand-500',
     bg:    'bg-brand-50',
@@ -154,14 +154,14 @@ export default function NotFound() {
         {/* Headline */}
         <h1 className="mt-3 font-display text-2xl text-neutral-900 animate-fade-up opacity-0"
           style={{ animationFillMode: 'forwards', animationDelay: '150ms' }}>
-          Sidan är städad bort
+          This page has been cleaned away
         </h1>
 
         {/* Subline */}
         <p className="mt-3 max-w-sm text-sm text-neutral-500 leading-relaxed animate-fade-up opacity-0"
           style={{ animationFillMode: 'forwards', animationDelay: '250ms' }}>
-          Den här sidan verkar inte existera — kanske hittade du en gammal länk,
-          eller kanske städade vi lite för hårt.
+          This page doesn't seem to exist — maybe you followed an old link,
+          or maybe we cleaned a little too hard.
         </p>
 
         {/* Quick-action cards */}
@@ -191,7 +191,7 @@ export default function NotFound() {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">
               <ArrowLeft size={14} />
-              Gå tillbaka till startsidan
+              Go back to home
             </Link>
           </Button>
         </div>

@@ -16,18 +16,18 @@ const STATUS_BADGE: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  pending:   'Väntar',
-  submitted: 'Inskickad',
-  approved:  'Godkänd',
-  rejected:  'Avslagen',
+  pending:   'Pending',
+  submitted: 'Submitted',
+  approved:  'Approved',
+  rejected:  'Rejected',
 }
 
 const FILTERS = [
-  { key: 'all',       label: 'Alla' },
-  { key: 'pending',   label: 'Väntar' },
-  { key: 'submitted', label: 'Inskickade' },
-  { key: 'approved',  label: 'Godkända' },
-  { key: 'rejected',  label: 'Avslagna' },
+  { key: 'all',       label: 'All' },
+  { key: 'pending',   label: 'Pending' },
+  { key: 'submitted', label: 'Submitted' },
+  { key: 'approved',  label: 'Approved' },
+  { key: 'rejected',  label: 'Rejected' },
 ]
 
 export default function RutClaimsPage() {
@@ -45,7 +45,7 @@ export default function RutClaimsPage() {
       setClaims(res.data.claims)
       setMissing(res.data.missingPersonnummer)
     } catch {
-      toast.error('Kunde inte hämta RUT-anspråk.')
+      toast.error('Could not load RUT claims.')
     } finally {
       setLoading(false)
     }
@@ -62,7 +62,7 @@ export default function RutClaimsPage() {
         ...(claimStatus === 'submitted' && skatteverketRef ? { skatteverketRef } : {}),
       })
       setClaims((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated.data } : c)))
-      toast.success('Status uppdaterad.')
+      toast.success('Status updated.')
     } catch (err: any) {
       toast.error(err?.message ?? 'Kunde inte uppdatera status.')
     } finally {
@@ -82,7 +82,7 @@ export default function RutClaimsPage() {
       a.remove()
       URL.revokeObjectURL(url)
     } catch {
-      toast.error('Kunde inte exportera CSV.')
+      toast.error('Could not export CSV.')
     }
   }
 
@@ -101,24 +101,24 @@ export default function RutClaimsPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl text-neutral-900">RUT-avdrag</h1>
+          <h1 className="font-display text-2xl text-neutral-900">RUT claims</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Spåra och hantera anspråk om RUT-återbetalning från Skatteverket.
+            Track and manage RUT refund claims from Skatteverket.
           </p>
         </div>
         <Button variant="outline" onClick={downloadCsv}>
           <Download size={14} />
-          Exportera CSV (väntande)
+          Export CSV (pending)
         </Button>
       </div>
 
       {/* Summary */}
       <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
         <p className="text-sm font-medium text-amber-800">
-          {formatSEK(totalPending)} väntar på att skickas in till Skatteverket
+          {formatSEK(totalPending)} awaiting submission to Skatteverket
         </p>
         <p className="text-xs text-amber-700 mt-0.5">
-          Exportera CSV-filen ovan och skicka in manuellt, sedan markera anspråken som "Inskickad" här.
+          Export the CSV file above and submit it manually, then mark the claims as "Submitted" here.
         </p>
       </div>
 
@@ -128,18 +128,18 @@ export default function RutClaimsPage() {
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle size={16} className="text-amber-500" />
             <h2 className="font-medium text-neutral-900">
-              Saknar personnummer ({missing.length})
+              Missing personal ID ({missing.length})
             </h2>
           </div>
           <p className="text-sm text-neutral-500 mb-4">
-            Dessa fakturor har RUT-avdrag men inget anspråk kunde skapas eftersom kunden inte har angett personnummer ännu. Be dem fylla i det på sin profilsida.
+            These invoices have a RUT deduction but no claim could be created because the customer has not entered their personal ID yet. Ask them to fill it in on their profile page.
           </p>
           <div className="space-y-2">
             {missing.map((m) => (
               <div key={m.invoiceId} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0 text-sm">
                 <div>
                   <p className="font-medium text-neutral-900">{m.customerName}</p>
-                  <p className="text-xs text-neutral-400">{m.customerEmail} · Faktura {m.invoiceNumber}</p>
+                  <p className="text-xs text-neutral-400">{m.customerEmail} · Invoice {m.invoiceNumber}</p>
                 </div>
                 <span className="text-neutral-600">{formatSEK(m.rutDeduction)}</span>
               </div>
@@ -168,18 +168,18 @@ export default function RutClaimsPage() {
       {/* Claims table */}
       <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden">
         {filtered.length === 0 ? (
-          <p className="text-sm text-neutral-400 text-center py-10">Inga anspråk i den här kategorin.</p>
+          <p className="text-sm text-neutral-400 text-center py-10">No claims in this category.</p>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-neutral-500 text-xs">
               <tr>
-                <th className="text-left font-medium px-4 py-3">Kund</th>
-                <th className="text-left font-medium px-4 py-3">Personnummer</th>
-                <th className="text-left font-medium px-4 py-3">Faktura</th>
-                <th className="text-right font-medium px-4 py-3">Belopp</th>
+                <th className="text-left font-medium px-4 py-3">Customer</th>
+                <th className="text-left font-medium px-4 py-3">Personal ID</th>
+                <th className="text-left font-medium px-4 py-3">Invoice</th>
+                <th className="text-right font-medium px-4 py-3">Amount</th>
                 <th className="text-left font-medium px-4 py-3">Status</th>
                 <th className="text-left font-medium px-4 py-3">Skatteverket-ref</th>
-                <th className="text-right font-medium px-4 py-3">Åtgärder</th>
+                <th className="text-right font-medium px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -202,7 +202,7 @@ export default function RutClaimsPage() {
                     {c.claimStatus === 'pending' ? (
                       <input
                         type="text"
-                        placeholder="Ref-nr"
+                        placeholder="Ref no."
                         value={refInputs[c.id] ?? ''}
                         onChange={(e) => setRefInputs((prev) => ({ ...prev, [c.id]: e.target.value }))}
                         className="w-28 text-xs border border-neutral-200 rounded-md px-2 py-1"
@@ -218,7 +218,7 @@ export default function RutClaimsPage() {
                           disabled={busyId === c.id}
                           onClick={() => setStatus(c.id, 'submitted')}
                           className="p-1.5 rounded-md text-blue-600 hover:bg-blue-50 disabled:opacity-40"
-                          title="Markera som inskickad"
+                          title="Mark as submitted"
                         >
                           <Send size={14} />
                         </button>
@@ -229,7 +229,7 @@ export default function RutClaimsPage() {
                             disabled={busyId === c.id}
                             onClick={() => setStatus(c.id, 'approved')}
                             className="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
-                            title="Markera som godkänd"
+                            title="Mark as approved"
                           >
                             <CheckCircle2 size={14} />
                           </button>
@@ -237,7 +237,7 @@ export default function RutClaimsPage() {
                             disabled={busyId === c.id}
                             onClick={() => setStatus(c.id, 'rejected')}
                             className="p-1.5 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-40"
-                            title="Markera som avslagen"
+                            title="Mark as rejected"
                           >
                             <XCircle size={14} />
                           </button>

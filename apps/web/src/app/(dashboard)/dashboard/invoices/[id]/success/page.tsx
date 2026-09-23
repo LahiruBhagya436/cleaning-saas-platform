@@ -77,8 +77,8 @@ function InvoicePaymentSuccessContent() {
       {status === 'checking' && (
         <>
           <Loader2 size={40} className="animate-spin text-brand-600 mx-auto" />
-          <h1 className="font-display text-xl text-neutral-900">Bekräftar betalning...</h1>
-          <p className="text-sm text-neutral-500">Det tar bara några sekunder.</p>
+          <h1 className="font-display text-xl text-neutral-900">Confirming payment...</h1>
+          <p className="text-sm text-neutral-500">This only takes a few seconds.</p>
         </>
       )}
 
@@ -87,12 +87,12 @@ function InvoicePaymentSuccessContent() {
           <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto">
             <CheckCircle size={32} className="text-teal-600" />
           </div>
-          <h1 className="font-display text-2xl text-neutral-900">Betalning genomförd!</h1>
+          <h1 className="font-display text-2xl text-neutral-900">Payment complete!</h1>
           <p className="text-sm text-neutral-500">
             {invoice?.invoiceNumber} · {formatSEK(Number(invoice?.customerPays ?? 0))}
           </p>
           <Button onClick={() => router.push('/dashboard/invoices')}>
-            Tillbaka till fakturor
+            Back to invoices
           </Button>
         </>
       )}
@@ -100,13 +100,13 @@ function InvoicePaymentSuccessContent() {
       {status === 'pending' && (
         <>
           <Loader2 size={40} className="text-amber-500 mx-auto" />
-          <h1 className="font-display text-xl text-neutral-900">Betalningen behandlas</h1>
+          <h1 className="font-display text-xl text-neutral-900">Payment processing</h1>
           <p className="text-sm text-neutral-500">
-            Vi har tagit emot din betalning från Stripe men väntar fortfarande på bekräftelse.
-            Det kan ta en liten stund — kolla fakturasidan om en minut.
+            We've received your payment from Stripe but are still waiting for confirmation.
+            It may take a moment — check the invoices page in a minute.
           </p>
           <Button variant="outline" onClick={() => router.push('/dashboard/invoices')}>
-            Tillbaka till fakturor
+            Back to invoices
           </Button>
         </>
       )}
@@ -116,12 +116,12 @@ function InvoicePaymentSuccessContent() {
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto">
             <AlertCircle size={32} className="text-red-600" />
           </div>
-          <h1 className="font-display text-xl text-neutral-900">Något gick fel</h1>
+          <h1 className="font-display text-xl text-neutral-900">Something went wrong</h1>
           <p className="text-sm text-neutral-500">
-            Kunde inte hämta fakturastatus. Kontrollera dina fakturor eller försök igen.
+            Could not load invoice status. Check your invoices or try again.
           </p>
           <Button variant="outline" onClick={() => router.push('/dashboard/invoices')}>
-            Tillbaka till fakturor
+            Back to invoices
           </Button>
         </>
       )}

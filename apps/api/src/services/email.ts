@@ -35,7 +35,7 @@ function wrap(title: string, bodyHtml: string): string {
         ${bodyHtml}
       </div>
       <div style="padding: 20px 0; border-top: 1px solid #e5e5e5; font-size: 12px; color: #888;">
-        Stockholm Cleaning Co. &middot; Detta är ett automatiskt utskick.
+        Stockholm Cleaning Co. &middot; This is an automated message.
       </div>
     </div>
   `
@@ -50,98 +50,98 @@ function render(template: string, data: Record<string, unknown>): Rendered {
   switch (template) {
     case 'welcome':
       return {
-        subject: `Välkommen, ${data.name}!`,
-        html: wrap('Välkommen till Stockholm Cleaning Co.', `
-          <p>Hej ${escapeHtml(data.name)},</p>
-          <p>Tack för att du skapade ett konto hos oss. Du kan nu boka städningar, se dina fakturor och hantera RUT-avdrag direkt från ditt konto.</p>
+        subject: `Welcome, ${data.name}!`,
+        html: wrap('Welcome to Stockholm Cleaning Co.', `
+          <p>Hi ${escapeHtml(data.name)},</p>
+          <p>Thank you for creating an account with us. You can now book cleanings, view your invoices, and manage RUT deductions directly from your account.</p>
         `),
       }
 
     case 'password_reset':
       return {
-        subject: 'Återställ ditt lösenord',
-        html: wrap('Återställ ditt lösenord', `
-          <p>Hej ${escapeHtml(data.name)},</p>
-          <p>Vi har fått en begäran om att återställa ditt lösenord. Klicka på knappen nedan för att välja ett nytt.</p>
+        subject: 'Reset your password',
+        html: wrap('Reset your password', `
+          <p>Hi ${escapeHtml(data.name)},</p>
+          <p>We received a request to reset your password. Click the button below to choose a new one.</p>
           <p style="margin: 24px 0;">
-            <a href="${escapeHtml(data.resetUrl)}" style="background: #0C447C; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Återställ lösenord</a>
+            <a href="${escapeHtml(data.resetUrl)}" style="background: #0C447C; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Reset password</a>
           </p>
-          <p style="font-size: 13px; color: #666;">Länken är giltig i 1 timme. Om du inte begärde detta kan du ignorera mailet.</p>
+          <p style="font-size: 13px; color: #666;">The link is valid for 1 hour. If you did not request this, you can ignore this email.</p>
         `),
       }
 
     case 'booking_confirmed':
       return {
-        subject: `Din städning är bokad — ${data.dateLabel ?? ''}`,
-        html: wrap('Din bokning är bekräftad', `
-          <p>Hej ${escapeHtml(data.name)},</p>
-          <p>Din städning är bokad och bekräftad.</p>
+        subject: `Your cleaning is booked — ${data.dateLabel ?? ''}`,
+        html: wrap('Your booking is confirmed', `
+          <p>Hi ${escapeHtml(data.name)},</p>
+          <p>Your cleaning is booked and confirmed.</p>
           <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #666;">Datum</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.dateLabel)}</td></tr>
-            ${data.address ? `<tr><td style="padding: 6px 0; color: #666;">Adress</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.address)}</td></tr>` : ''}
-            ${data.staffName ? `<tr><td style="padding: 6px 0; color: #666;">Personal</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.staffName)}</td></tr>` : '<tr><td style="padding: 6px 0; color: #666;">Personal</td><td style="padding: 6px 0; text-align: right;">Tilldelas snart</td></tr>'}
-            ${data.customerPays != null ? `<tr><td style="padding: 6px 0; color: #666;">Att betala</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(data.customerPays)} kr</td></tr>` : ''}
+            <tr><td style="padding: 6px 0; color: #666;">Date</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.dateLabel)}</td></tr>
+            ${data.address ? `<tr><td style="padding: 6px 0; color: #666;">Address</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.address)}</td></tr>` : ''}
+            ${data.staffName ? `<tr><td style="padding: 6px 0; color: #666;">Staff</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.staffName)}</td></tr>` : '<tr><td style="padding: 6px 0; color: #666;">Staff</td><td style="padding: 6px 0; text-align: right;">To be assigned</td></tr>'}
+            ${data.customerPays != null ? `<tr><td style="padding: 6px 0; color: #666;">To pay</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(data.customerPays)} kr</td></tr>` : ''}
           </table>
-          <p>Du hittar fullständiga detaljer på ditt konto under "Mina bokningar".</p>
+          <p>You can find full details in your account under "My Bookings".</p>
         `),
       }
 
     case 'shift_assigned':
       return {
-        subject: `Nytt staduppdrag - ${data.whenLabel ?? ''}`,
-        html: wrap('Du har fatt ett nytt uppdrag', `
-          <p>Hej ${escapeHtml(data.staffName)},</p>
-          <p>Du har tilldelats ett nytt staduppdrag.</p>
+        subject: `New cleaning assignment - ${data.whenLabel ?? ''}`,
+        html: wrap('You have a new assignment', `
+          <p>Hi ${escapeHtml(data.staffName)},</p>
+          <p>You have been assigned a new cleaning job.</p>
           <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #666;">Datum &amp; tid</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.whenLabel)}</td></tr>
-            ${data.address ? `<tr><td style="padding: 6px 0; color: #666;">Adress</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.address)}</td></tr>` : ''}
-            ${data.customerName ? `<tr><td style="padding: 6px 0; color: #666;">Kund</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.customerName)}</td></tr>` : ''}
+            <tr><td style="padding: 6px 0; color: #666;">Date &amp; time</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.whenLabel)}</td></tr>
+            ${data.address ? `<tr><td style="padding: 6px 0; color: #666;">Address</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.address)}</td></tr>` : ''}
+            ${data.customerName ? `<tr><td style="padding: 6px 0; color: #666;">Customer</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.customerName)}</td></tr>` : ''}
           </table>
-          <p>Logga in pa ditt konto for att se alla detaljer.</p>
+          <p>Log in to your account to see all the details.</p>
         `),
       }
 
     case 'invoice':
       return {
-        subject: `Faktura ${data.invoiceNumber} från Stockholm Cleaning Co.`,
-        html: wrap('Ny faktura', `
-          <p>Hej ${escapeHtml(data.name)},</p>
-          <p>En ny faktura har skapats för din genomförda städning.</p>
+        subject: `Invoice ${data.invoiceNumber} from Stockholm Cleaning Co.`,
+        html: wrap('New invoice', `
+          <p>Hi ${escapeHtml(data.name)},</p>
+          <p>A new invoice has been created for your completed cleaning.</p>
           <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #666;">Fakturanummer</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.invoiceNumber)}</td></tr>
-            <tr><td style="padding: 6px 0; color: #666;">Att betala</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(data.customerPays)} kr</td></tr>
-            <tr><td style="padding: 6px 0; color: #666;">Förfallodatum</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.dueDate)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Invoice number</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.invoiceNumber)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">To pay</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(data.customerPays)} kr</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Due date</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.dueDate)}</td></tr>
           </table>
-          <p>Logga in på ditt konto för att betala fakturan online.</p>
+          <p>Log in to your account to pay the invoice online.</p>
         `),
       }
 
     case 'team_invite':
       return {
-        subject: `Du har fått ett konto hos Stockholm Cleaning Co.`,
-        html: wrap('Välkommen till teamet', `
-          <p>Hej ${escapeHtml(data.name)},</p>
-          <p>Du har lagts till som <strong>${escapeHtml(data.role === 'coordinator' ? 'arbetsledare' : data.role === 'admin' ? 'administratör' : 'städare')}</strong> hos Stockholm Cleaning Co.</p>
+        subject: `You have been given an account at Stockholm Cleaning Co.`,
+        html: wrap('Welcome to the team', `
+          <p>Hi ${escapeHtml(data.name)},</p>
+          <p>You have been added as <strong>${escapeHtml(data.role === 'coordinator' ? 'supervisor' : data.role === 'admin' ? 'administrator' : 'cleaner')}</strong> at Stockholm Cleaning Co.</p>
           <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #666;">E-post</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.email)}</td></tr>
-            <tr><td style="padding: 6px 0; color: #666;">Tillfälligt lösenord</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.tempPassword)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Email</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.email)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Temporary password</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.tempPassword)}</td></tr>
           </table>
-          <p style="font-size: 13px; color: #666;">Logga in och byt lösenord så snart som möjligt.</p>
+          <p style="font-size: 13px; color: #666;">Log in and change your password as soon as possible.</p>
         `),
       }
 
     case 'payment_receipt':
       return {
-        subject: `Betalningsbekräftelse — Faktura ${data.invoiceNumber}`,
-        html: wrap('Tack för din betalning', `
-          <p>Hej ${escapeHtml(data.name)},</p>
-          <p>Vi har tagit emot din betalning. Här är ditt kvitto:</p>
+        subject: `Payment confirmation — Invoice ${data.invoiceNumber}`,
+        html: wrap('Thank you for your payment', `
+          <p>Hi ${escapeHtml(data.name)},</p>
+          <p>We have received your payment. Here is your receipt:</p>
           <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #666;">Fakturanummer</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.invoiceNumber)}</td></tr>
-            <tr><td style="padding: 6px 0; color: #666;">Belopp betalt</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(data.amountPaid)} kr</td></tr>
-            <tr><td style="padding: 6px 0; color: #666;">Betalningsdatum</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.paidDate)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Invoice number</td><td style="padding: 6px 0; text-align: right; font-family: monospace;">${escapeHtml(data.invoiceNumber)}</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Amount paid</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(data.amountPaid)} kr</td></tr>
+            <tr><td style="padding: 6px 0; color: #666;">Payment date</td><td style="padding: 6px 0; text-align: right;">${escapeHtml(data.paidDate)}</td></tr>
           </table>
-          <p>Tack för att du valde Stockholm Cleaning Co.!</p>
+          <p>Thank you for choosing Stockholm Cleaning Co.!</p>
         `),
       }
 

@@ -7,105 +7,105 @@ import { RutCalculator } from '@/components/shared/RutCalculator'
 
 const SERVICES = [
   {
-    name: 'Hemstädning',
-    nameSv: 'Regelbunden städning',
+    name: 'Home cleaning',
+    nameSv: 'Regular cleaning',
     price: 700,
     rutEligible: true,
     minHours: 2,
     icon: '🏠',
     popular: true,
-    description: 'Perfekt för regelbunden städning av ditt hem. Vi städar kök, badrum, sovrum och vardagsrum.',
+    description: 'Perfect for regular cleaning of your home. We clean the kitchen, bathroom, bedroom and living room.',
     includes: [
       'Dammsugning och moppning av alla golv',
-      'Rengöring av badrum och toalett',
-      'Kök inklusive diskbänk och spis',
-      'Dammtorkning av ytor och möbler',
-      'Bäddning och byte av sängkläder',
+      'Cleaning of bathroom and toilet',
+      'Kitchen including sink and stove',
+      'Dusting of surfaces and furniture',
+      'Making beds and changing bed linen',
     ],
   },
   {
-    name: 'Storstädning',
-    nameSv: 'Djuprengöring',
+    name: 'Deep cleaning',
+    nameSv: 'Deep cleaning',
     price: 700,
     rutEligible: true,
     minHours: 4,
     icon: '✨',
     popular: false,
-    description: 'En grundlig städning från golv till tak. Perfekt inför flytt, gäster eller när det behövs extra.',
+    description: 'A thorough cleaning from floor to ceiling. Perfect before a move, guests, or when extra is needed.',
     includes: [
-      'Allt som ingår i hemstädning',
-      'Invändig rengöring av ugn och kyl',
-      'Rengöring inuti skåp och lådor',
-      'Fönsterputsning inifrån',
+      'Everything included in home cleaning',
+      'Interior cleaning of oven and fridge',
+      'Cleaning inside cabinets and drawers',
+      'Window cleaning from the inside',
       'Badrumsfogar och avkalkningsbehandling',
     ],
   },
   {
-    name: 'Flyttstädning',
-    nameSv: 'Inflyttnings- / utflyttningsstädning',
+    name: 'Move-out cleaning',
+    nameSv: 'Move-in / move-out cleaning',
     price: 700,
     rutEligible: true,
     minHours: 5,
     icon: '📦',
     popular: false,
-    description: 'Garanterat godkänd städning vid flytt. Vi ser till att du får tillbaka din deposition.',
+    description: 'Guaranteed approved cleaning for a move. We make sure you get your deposit back.',
     includes: [
-      'Komplett djuprengöring av hela bostaden',
-      'Ugn, kyl och frys rengörs invändigt',
-      'Alla skåp och lådor töms och rengörs',
-      'Fönsterputsning in- och utvändigt',
-      'Balkong eller terrass ingår',
+      'Complete deep cleaning of the whole home',
+      'Oven, fridge and freezer cleaned inside',
+      'All cabinets and drawers emptied and cleaned',
+      'Window cleaning inside and out',
+      'Balcony or terrace included',
     ],
   },
   {
-    name: 'Fönsterputsning',
-    nameSv: 'Fönsterputsning',
+    name: 'Window cleaning',
+    nameSv: 'Window cleaning',
     price: 600,
     rutEligible: true,
     minHours: 1,
     icon: '🪟',
     popular: false,
-    description: 'Professionell fönsterputs för kristallklara fönster. Vi hanterar alla typer av fönster.',
+    description: 'Professional window cleaning for crystal-clear windows. We handle all types of windows.',
     includes: [
-      'In- och utvändig rengöring',
-      'Fönsterkarmar och tätningslister',
-      'Fönsterbräden dammtorkas',
-      'Fläckborttagning och torkning',
-      'Tidbokning efter dina önskemål',
+      'Interior and exterior cleaning',
+      'Window frames and seals',
+      'Window sills dusted',
+      'Stain removal and drying',
+      'Scheduling to your preferences',
     ],
   },
   {
-    name: 'Kontorstädning',
-    nameSv: 'Kontor & företagslokaler',
+    name: 'Office cleaning',
+    nameSv: 'Office & business premises',
     price: 650,
     rutEligible: false,
     minHours: 2,
     icon: '🏢',
     popular: false,
-    description: 'Håll kontoret rent och välkomnande. Vi erbjuder flexibla scheman för ditt företag.',
+    description: 'Keep the office clean and welcoming. We offer flexible schedules for your business.',
     includes: [
-      'Receptionsområde och kontor',
-      'Kök och pausrum',
+      'Reception area and offices',
+      'Kitchen and break rooms',
       'Toaletter och hygienzoner',
       'Dammsugning och moppning',
       'Papperskorg och avfallshantering',
     ],
   },
   {
-    name: 'Byggstädning',
-    nameSv: 'Slutstädning efter renovering',
+    name: 'Post-construction cleaning',
+    nameSv: 'Final cleaning after renovation',
     price: 800,
     rutEligible: false,
     minHours: 4,
     icon: '🔨',
     popular: false,
-    description: 'Städning efter bygg- och renoveringsarbeten. Vi tar hand om damm, smuts och byggmaterial.',
+    description: 'Cleaning after construction and renovation work. We take care of dust, dirt and building materials.',
     includes: [
-      'Borttagning av byggdamm på alla ytor',
-      'Rengöring av golv, väggar och tak',
-      'Fönster och dörrkarmar',
-      'Kök och badrum efter installation',
-      'Bortforsling av lättare byggavfall',
+      'Removal of construction dust from all surfaces',
+      'Cleaning of floors, walls and ceilings',
+      'Windows and door frames',
+      'Kitchen and bathroom after installation',
+      'Removal of light construction waste',
     ],
   },
 ]
@@ -113,27 +113,27 @@ const SERVICES = [
 const FAQ = [
   {
     q: 'Hur fungerar RUT-avdraget?',
-    a: 'RUT-avdrag ger dig 50% rabatt på arbetskostnaden för hushållstjänster, upp till 75 000 kr per person och år. Vi hanterar ansökan till Skatteverket åt dig — du betalar bara halva priset direkt.',
+    a: 'The RUT deduction gives you 50% off the labour cost for household services, up to SEK 75,000 per person per year. We handle the claim to Skatteverket for you — you pay only half the price directly.',
   },
   {
-    q: 'Vad händer om jag inte är nöjd?',
-    a: 'Vi erbjuder nöjdhetsgaranti. Om du inte är nöjd med städningen kontaktar du oss inom 24 timmar så kommer vi tillbaka och åtgärdar det utan extra kostnad.',
+    q: 'What if I am not satisfied?',
+    a: 'We offer a satisfaction guarantee. If you are not happy with the cleaning, contact us within 24 hours and we will come back and fix it at no extra cost.',
   },
   {
-    q: 'Kan jag boka återkommande städning?',
-    a: 'Ja! Du kan boka veckovis, varannan vecka eller månadsvis städning. Återkommande bokningar ger dig samma städare varje gång.',
+    q: 'Can I book recurring cleaning?',
+    a: 'Yes! You can book weekly, every other week or monthly cleaning. Recurring bookings give you the same cleaner every time.',
   },
   {
-    q: 'Behöver jag vara hemma under städningen?',
-    a: 'Nej, de flesta kunder lämnar en nyckel eller kod. Du kan lämna instruktioner i bokningsformuläret.',
+    q: 'Do I need to be home during the cleaning?',
+    a: 'No, most customers leave a key or code. You can leave instructions in the booking form.',
   },
   {
-    q: 'Vad tar ni med för städprodukter?',
-    a: 'Vi använder miljövänliga städprodukter och tar med allt vi behöver. Om du föredrar specifika produkter kan du meddela oss det.',
+    q: 'What cleaning products do you bring?',
+    a: 'We use eco-friendly cleaning products and bring everything we need. If you prefer specific products, just let us know.',
   },
   {
     q: 'Hur avbokar jag?',
-    a: 'Du kan avboka gratis upp till 24 timmar före din bokade tid. Avbokning sker enkelt via din dashboard.',
+    a: 'You can cancel for free up to 24 hours before your booked time. Cancelling is easy via your dashboard.',
   },
 ]
 
@@ -147,13 +147,13 @@ export default function PricingPage() {
         <div className="container-tight section-pad text-center">
           <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-            RUT-avdrag — du betalar bara hälften
+            RUT deduction — you pay only half
           </div>
           <h1 className="font-display text-4xl sm:text-5xl text-neutral-900 mb-4">
             Enkla, transparenta priser
           </h1>
           <p className="text-lg text-neutral-500 max-w-lg mx-auto mb-8">
-            Inga dolda avgifter. Priset du ser är priset du betalar — efter RUT-avdrag.
+            No hidden fees. The price you see is the price you pay — after the RUT deduction.
           </p>
           <Button size="lg" asChild>
             <Link href="/book">
@@ -168,7 +168,7 @@ export default function PricingPage() {
         <div className="container-tight">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((service) => {
-              const hoursLabel = `Från ${service.minHours} tim`
+              const hoursLabel = `From ${service.minHours} hrs`
               const priceAfterRut = service.rutEligible
                 ? Math.round(service.price * 0.5)
                 : service.price
@@ -184,7 +184,7 @@ export default function PricingPage() {
                 >
                   {service.popular && (
                     <div className="inline-flex self-start items-center gap-1.5 bg-brand-50 text-brand-700 text-xs font-medium px-2.5 py-1 rounded-full mb-4">
-                      ⭐ Populärast
+                      ⭐ Most popular
                     </div>
                   )}
 
@@ -205,7 +205,7 @@ export default function PricingPage() {
                         = {priceAfterRut} kr/tim efter RUT-avdrag
                       </p>
                     ) : (
-                      <p className="text-xs text-neutral-400">Ej RUT-berättigad</p>
+                      <p className="text-xs text-neutral-400">Not RUT-eligible</p>
                     )}
                     <p className="text-xs text-neutral-400 mt-1">{hoursLabel} · inkl. 25% moms</p>
                   </div>
@@ -239,7 +239,7 @@ export default function PricingPage() {
         <div className="container-tight">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl text-neutral-900 mb-3">
-              Räkna ut ditt pris med RUT
+              Calculate your price with RUT
             </h2>
             <p className="text-neutral-500 max-w-md mx-auto">
               Ange antal timmar och se exakt vad du betalar efter RUT-avdraget.
@@ -256,7 +256,7 @@ export default function PricingPage() {
         <div className="container-tight">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl text-neutral-900 mb-3">
-              Vanliga frågor
+              Frequently asked questions
             </h2>
           </div>
           <div className="max-w-2xl mx-auto space-y-4">
@@ -282,11 +282,11 @@ export default function PricingPage() {
             Redo att boka?
           </h2>
           <p className="text-brand-200 mb-8 max-w-md mx-auto">
-            Boka på 60 sekunder. Ingen bindningstid. Avboka gratis upp till 24 timmar i förväg.
+            Book in 60 seconds. No commitment. Cancel for free up to 24 hours in advance.
           </p>
           <Button size="xl" variant="teal" asChild>
             <Link href="/book">
-              Boka städning nu <ArrowRight size={18} />
+              Book cleaning now <ArrowRight size={18} />
             </Link>
           </Button>
         </div>

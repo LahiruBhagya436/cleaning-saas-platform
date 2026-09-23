@@ -20,7 +20,7 @@ export function ServiceCard({ service }: { service: Service }) {
     <div className={`relative group bg-white rounded-xl border p-5 shadow-card card-hover transition-all duration-200 ${service.popular ? 'border-brand-200 ring-1 ring-brand-100' : 'border-neutral-200'}`}>
       {service.popular && (
         <div className="absolute -top-2.5 left-4 bg-brand-600 text-white text-2xs font-medium px-2.5 py-0.5 rounded-full">
-          Populärast
+          Most popular
         </div>
       )}
 
@@ -40,18 +40,18 @@ export function ServiceCard({ service }: { service: Service }) {
         <div>
           {service.rutEligible ? (
             <>
-              <p className="text-xs text-neutral-400 line-through">{formatSEK(totalPerHour)}/tim</p>
+              <p className="text-xs text-neutral-400 line-through">{formatSEK(totalPerHour)}/hr</p>
               <p className="font-display text-xl text-teal-600">
-                {formatSEK(afterRut)}<span className="text-sm font-sans text-neutral-400">/tim</span>
+                {formatSEK(afterRut)}<span className="text-sm font-sans text-neutral-400">/hr</span>
               </p>
-              <p className="text-xs text-neutral-400">med RUT-avdrag</p>
+              <p className="text-xs text-neutral-400">with RUT deduction</p>
             </>
           ) : (
             <>
               <p className="font-display text-xl text-neutral-800">
-                {formatSEK(totalPerHour)}<span className="text-sm font-sans text-neutral-400">/tim</span>
+                {formatSEK(totalPerHour)}<span className="text-sm font-sans text-neutral-400">/hr</span>
               </p>
-              <p className="text-xs text-neutral-400">inkl. moms</p>
+              <p className="text-xs text-neutral-400">incl. VAT</p>
             </>
           )}
         </div>
@@ -59,7 +59,7 @@ export function ServiceCard({ service }: { service: Service }) {
           href="/book"
           className="flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700 group-hover:gap-2 transition-all"
         >
-          Boka <ArrowRight size={12} />
+          Book <ArrowRight size={12} />
         </Link>
       </div>
     </div>

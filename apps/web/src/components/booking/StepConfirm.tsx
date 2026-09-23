@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { ArrowLeft, MapPin, CalendarDays, Clock, Tag, Shield, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { formatSEK } from '@/lib/utils'
 import type { BookingData } from '@/app/book/page'
@@ -23,14 +23,14 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
   return (
     <div className="space-y-6">
       <h2 className="font-sans font-medium text-neutral-900">
-        Granska din bokning
+        Review your booking
       </h2>
 
       {/* Booking summary card */}
       <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden">
         {/* Header */}
         <div className="bg-brand-600 px-5 py-4">
-          <p className="text-xs text-brand-200 mb-0.5">Din bokning</p>
+          <p className="text-xs text-brand-200 mb-0.5">Your booking</p>
           <p className="font-display text-xl text-white">{data.serviceName}</p>
         </div>
 
@@ -39,9 +39,9 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
           <div className="flex items-start gap-3">
             <CalendarDays size={17} className="text-neutral-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs text-neutral-400 mb-0.5">Datum & tid</p>
+              <p className="text-xs text-neutral-400 mb-0.5">Date & time</p>
               <p className="text-sm font-medium text-neutral-900 capitalize">
-                {format(scheduledDate, "EEEE d MMMM yyyy", { locale: sv })}
+                {format(scheduledDate, "EEEE d MMMM yyyy", { locale: enGB })}
               </p>
               <p className="text-sm font-medium text-neutral-900">
                 {format(scheduledDate, 'HH:mm')}–{format(endDate, 'HH:mm')}
@@ -52,9 +52,9 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
           <div className="flex items-start gap-3">
             <Clock size={17} className="text-neutral-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs text-neutral-400 mb-0.5">Varaktighet</p>
+              <p className="text-xs text-neutral-400 mb-0.5">Duration</p>
               <p className="text-sm font-medium text-neutral-900">
-                {data.durationMinutes / 60} timmar
+                {data.durationMinutes / 60} hours
               </p>
             </div>
           </div>
@@ -62,7 +62,7 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
           <div className="flex items-start gap-3">
             <MapPin size={17} className="text-neutral-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs text-neutral-400 mb-0.5">Adress</p>
+              <p className="text-xs text-neutral-400 mb-0.5">Address</p>
               <p className="text-sm font-medium text-neutral-900">
                 {data.addressLine1}
               </p>
@@ -76,7 +76,7 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
             <div className="flex items-start gap-3">
               <Tag size={17} className="text-neutral-400 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs text-neutral-400 mb-0.5">Anteckningar</p>
+                <p className="text-xs text-neutral-400 mb-0.5">Notes</p>
                 <p className="text-sm text-neutral-700">{data.notes}</p>
               </div>
             </div>
@@ -86,26 +86,26 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
 
       {/* Price breakdown */}
       <div className="bg-white border border-neutral-200 rounded-xl p-5">
-        <h3 className="text-sm font-medium text-neutral-900 mb-4">Prissammanfattning</h3>
+        <h3 className="text-sm font-medium text-neutral-900 mb-4">Price summary</h3>
         <div className="space-y-2.5">
           <div className="flex justify-between text-sm">
             <span className="text-neutral-500">
-              Arbetskostnad ({data.servicePriceSEK} kr/tim × {data.durationMinutes / 60} tim)
+              Labour cost ({data.servicePriceSEK} kr/hr × {data.durationMinutes / 60} hrs)
             </span>
             <span>{formatSEK(data.totalExclVat)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-neutral-500">Moms (25%)</span>
+            <span className="text-neutral-500">VAT (25%)</span>
             <span>{formatSEK(data.vatAmount)}</span>
           </div>
           {data.rutDeduction > 0 && (
             <div className="flex justify-between text-sm text-teal-600">
-              <span className="font-medium">RUT-avdrag (−50% av inkl. moms)</span>
+              <span className="font-medium">RUT deduction (−50% of incl. VAT)</span>
               <span className="font-medium">−{formatSEK(data.rutDeduction)}</span>
             </div>
           )}
           <div className="border-t border-neutral-200 pt-3 mt-1 flex justify-between items-center">
-            <span className="font-medium text-neutral-900">Totalt att betala</span>
+            <span className="font-medium text-neutral-900">Total to pay</span>
             <span className="font-display text-2xl text-brand-700">
               {formatSEK(data.customerPays)}
             </span>
@@ -113,8 +113,8 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
         </div>
         {data.rutDeduction > 0 && (
           <p className="text-xs text-teal-600 mt-2 bg-teal-50 px-3 py-1.5 rounded-lg">
-            Du sparar {formatSEK(data.rutDeduction)} tack vare RUT-avdrag.
-            Skatteverket betalar resten direkt till oss.
+            You save {formatSEK(data.rutDeduction)} thanks to the RUT deduction.
+            Skatteverket pays the rest directly to us.
           </p>
         )}
       </div>
@@ -122,24 +122,24 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
       {/* Trust signals */}
       <div className="flex items-center gap-2 text-xs text-neutral-500 justify-center">
         <Shield size={14} className="text-teal-500" />
-        <span>Avboka gratis upp till 24 timmar i förväg · Ansvarsförsäkrat</span>
+        <span>Cancel for free up to 24 hours in advance · Insured</span>
       </div>
 
       {/* Not logged in warning */}
       {!isLoggedIn && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <p className="text-sm font-medium text-amber-800 mb-1">
-            Du måste logga in för att slutföra bokningen
+            You must log in to complete the booking
           </p>
           <p className="text-xs text-amber-600 mb-3">
-            Skapa ett gratis konto eller logga in för att boka.
+            Create a free account or log in to book.
           </p>
           <div className="flex gap-2">
             <Button size="sm" asChild>
-              <Link href="/login?callbackUrl=/book">Logga in</Link>
+              <Link href="/login?callbackUrl=/book">Log in</Link>
             </Button>
             <Button size="sm" variant="outline" asChild>
-              <Link href="/register?callbackUrl=/book">Skapa konto</Link>
+              <Link href="/register?callbackUrl=/book">Create account</Link>
             </Button>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2" disabled={submitting}>
           <ArrowLeft size={16} />
-          Tillbaka
+          Back
         </Button>
         <Button
           className="flex-1 group"
@@ -158,7 +158,7 @@ export function StepConfirm({ data, onSubmit, onBack, submitting, isLoggedIn }: 
           loading={submitting}
           disabled={!isLoggedIn || submitting}
         >
-          {submitting ? 'Bokar...' : `Bekräfta — ${formatSEK(data.customerPays)}`}
+          {submitting ? 'Booking...' : `Confirm — ${formatSEK(data.customerPays)}`}
           {!submitting && (
             <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
           )}

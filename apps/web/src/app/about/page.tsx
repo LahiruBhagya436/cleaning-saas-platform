@@ -8,30 +8,30 @@ const VALUES = [
   {
     icon: Heart,
     title: 'Omtanke',
-    description: 'Vi behandlar ditt hem som om det var vårt eget — med respekt för dina saker och din integritet.',
+    description: 'We treat your home as if it were our own — with respect for your belongings and your privacy.',
   },
   {
     icon: Shield,
-    title: 'Pålitlighet',
-    description: 'Samma städare varje gång, bakgrundskontrollerad personal och full ansvarsförsäkring.',
+    title: 'Reliability',
+    description: 'The same cleaner every time, background-checked staff and full liability insurance.',
   },
   {
     icon: Sparkles,
     title: 'Kvalitet',
-    description: 'Vi följer en tydlig checklista vid varje städning så att resultatet alltid håller samma höga nivå.',
+    description: 'We follow a clear checklist at every cleaning so the result is always the same high standard.',
   },
   {
     icon: Users,
-    title: 'Lokal närvaro',
-    description: 'Ett Stockholmsbaserat team som känner stadens bostäder, föreningar och behov.',
+    title: 'Local presence',
+    description: 'A Stockholm-based team that knows the homes, housing associations and needs of the city.',
   },
 ]
 
 const STATS = [
-  { value: '2 400+', label: 'Nöjda kunder' },
-  { value: '15 000+', label: 'Genomförda städningar' },
+  { value: '2 400+', label: 'Satisfied customers' },
+  { value: '15 000+', label: 'Cleanings completed' },
   { value: '4,9/5', label: 'Snittbetyg' },
-  { value: '8 år', label: 'I branschen' },
+  { value: '8 years', label: 'In the industry' },
 ]
 
 export default function AboutPage() {
@@ -46,8 +46,8 @@ export default function AboutPage() {
             Om Stockholm Cleaning Co.
           </h1>
           <p className="text-lg text-neutral-500 max-w-xl mx-auto">
-            Vi grundades med ett enkelt mål: göra professionell städning enkel, pålitlig
-            och prisvärd för Stockholms hushåll och företag.
+            We were founded with a simple goal: to make professional cleaning easy, reliable
+            and affordable for Stockholm homes and businesses.
           </p>
         </div>
       </section>
@@ -56,20 +56,20 @@ export default function AboutPage() {
       <section className="section-pad">
         <div className="container-tight grid gap-10 lg:grid-cols-2 items-center">
           <div>
-            <h2 className="font-display text-3xl text-neutral-900 mb-4">Vår historia</h2>
+            <h2 className="font-display text-3xl text-neutral-900 mb-4">Our story</h2>
             <p className="text-neutral-600 leading-relaxed mb-4">
-              Stockholm Cleaning Co. startade som en liten lokal verksamhet med målet att
-              höja standarden på städtjänster i Stockholm. Vi var trötta på att höra om
-              osäkra bokningar, oregelbunden kvalitet och städare som aldrig var de samma.
+              Stockholm Cleaning Co. started as a small local business with the goal of
+              raising the standard of cleaning services in Stockholm. We were tired of hearing about
+              unreliable bookings, inconsistent quality and cleaners who were never the same.
             </p>
             <p className="text-neutral-600 leading-relaxed mb-4">
-              Idag är vi ett av Stockholms mest betrodda städbolag — med ett team av
-              utbildade, bakgrundskontrollerade städare och ett bokningssystem som gör det
+              Today we are one of Stockholm's most trusted cleaning companies — with a team of
+              trained, background-checked cleaners and a booking system that makes it
               enkelt att boka, omboka och betala, helt digitalt.
             </p>
             <p className="text-neutral-600 leading-relaxed">
-              Vi är godkända RUT-leverantörer, innehar F-skatt och är fullt
-              ansvarsförsäkrade — så du kan känna dig trygg varje gång vi kommer hem till dig.
+              We are approved RUT providers, hold F-tax and are fully
+              insured — so you can feel safe every time we come to your home.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -87,9 +87,9 @@ export default function AboutPage() {
       <section className="section-pad bg-white border-y border-neutral-100">
         <div className="container-tight">
           <div className="text-center mb-12">
-            <h2 className="font-display text-3xl text-neutral-900 mb-3">Vad vi står för</h2>
+            <h2 className="font-display text-3xl text-neutral-900 mb-3">What we stand for</h2>
             <p className="text-neutral-500 max-w-md mx-auto">
-              Fyra principer som styr allt vi gör, från första bokning till sista detalj.
+              Four principles that guide everything we do, from the first booking to the last detail.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -110,14 +110,14 @@ export default function AboutPage() {
       <section className="section-pad">
         <div className="container-tight">
           <div className="bg-neutral-900 rounded-2xl p-8 sm:p-12 text-white">
-            <h2 className="font-display text-2xl sm:text-3xl mb-6">Varför välja oss?</h2>
+            <h2 className="font-display text-2xl sm:text-3xl mb-6">Why choose us?</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                'Godkänd RUT-leverantör — du betalar bara hälften',
-                'Innehar F-skatt och full ansvarsförsäkring',
+                'Approved RUT provider — you pay only half',
+                'Holds F-tax and full liability insurance',
                 'Bakgrundskontrollerad och utbildad personal',
-                'Samma städare vid varje besök',
-                'Nöjd-kund-garanti — vi rättar till om något missas',
+                'The same cleaner at every visit',
+                'Satisfaction guarantee — we fix it if anything is missed',
                 'Enkel digital bokning och betalning',
               ].map((point) => (
                 <div key={point} className="flex items-start gap-2.5 text-sm text-neutral-300">
@@ -133,16 +133,16 @@ export default function AboutPage() {
       {/* Bottom CTA */}
       <section className="section-pad bg-brand-600 text-white">
         <div className="container-tight text-center">
-          <h2 className="font-display text-3xl text-white mb-4">Redo att boka din städning?</h2>
+          <h2 className="font-display text-3xl text-white mb-4">Ready to book your cleaning?</h2>
           <p className="text-brand-200 mb-8 max-w-md mx-auto">
-            Det tar mindre än två minuter att boka — och du kan när som helst omboka eller avboka.
+            It takes less than two minutes to book — and you can reschedule or cancel at any time.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button size="xl" variant="teal" asChild>
               <Link href="/book">Boka nu <ArrowRight size={18} /></Link>
             </Button>
             <Button size="xl" variant="outline" asChild className="bg-transparent border-brand-400 text-white hover:bg-brand-500">
-              <Link href="/services">Se våra tjänster</Link>
+              <Link href="/services">See our services</Link>
             </Button>
           </div>
         </div>

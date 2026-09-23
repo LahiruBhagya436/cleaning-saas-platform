@@ -19,7 +19,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
     if (!ALLOWED.includes(role)) router.replace('/dashboard')
   }, [status, role, router])
 
-  useEffect(() => { document.title = 'Min sida | Stockholm Cleaning Co.' }, [])
+  useEffect(() => { document.title = 'My page | Stockholm Cleaning Co.' }, [])
 
   if (status === 'loading' || !role || !ALLOWED.includes(role)) {
     return (
@@ -37,16 +37,16 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
             <Sparkles size={16} />
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-neutral-900 leading-tight">Min sida</p>
+            <p className="text-sm font-semibold text-neutral-900 leading-tight">My page</p>
             <p className="text-[11px] text-neutral-400 leading-tight truncate">
-              {name}{role === 'coordinator' ? ' · Arbetsledare' : role === 'staff' ? ' · Städare' : ''}
+              {name}{role === 'coordinator' ? ' · Supervisor' : role === 'staff' ? ' · Cleaner' : ''}
             </p>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
           >
-            <LogOut size={14} /> Logga ut
+            <LogOut size={14} /> Log out
           </button>
         </div>
       </header>

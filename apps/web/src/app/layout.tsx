@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   description:
     'Book professional cleaning services in Stockholm. ' +
     'RUT-avdrag available — pay only 50% with Swedish tax deduction. ' +
-    'Hemstädning, storstädning, flyttstädning och mer.',
+    'Home cleaning, deep cleaning, move-out cleaning and more.',
   keywords: [
     'städning stockholm', 'hemstädning', 'storstädning',
     'RUT-avdrag', 'städfirma stockholm', 'cleaning stockholm',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   ),
   openGraph: {
     type:        'website',
-    locale:      'sv_SE',
+    locale:      'en_GB',
     url:         '/',
     siteName:    'Stockholm Cleaning Co.',
     title:       'Professional Cleaning Services in Stockholm',
@@ -75,7 +75,8 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="sv"
+      lang="en"
+      translate="no"
       className={`${dmSerifDisplay.variable} ${dmSans.variable} ${dmMono.variable}`}
       suppressHydrationWarning
     >

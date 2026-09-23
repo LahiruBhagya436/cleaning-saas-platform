@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import {
   Loader2, Plus, X, CalendarDays, Briefcase, UserPlus,
   CheckCircle2, Copy, Pencil, Trash2, ChevronDown, ChevronUp,
@@ -48,7 +48,7 @@ export default function AdminWorkersPage() {
       const res = await adminApi.workers()
       setWorkers(res.data ?? [])
     } catch {
-      toast.error('Kunde inte hämta personal.')
+      toast.error('Could not load staff.')
     } finally {
       setLoading(false)
     }
@@ -57,13 +57,13 @@ export default function AdminWorkersPage() {
   useEffect(() => { load() }, [])
 
   const handleDeactivate = async (id: string, name: string) => {
-    if (!confirm(`Avaktivera ${name}? Personen tas bort från kommande bokningar.`)) return
+    if (!confirm(`Deactivate ${name}? The person will be removed from upcoming bookings.`)) return
     try {
       await adminApi.deleteWorker(id)
-      toast.success(`${name} avaktiverad.`)
+      toast.success(`${name} deactivated.`)
       load()
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte avaktivera.')
+      toast.error(err?.message ?? 'Could not deactivate.')
     }
   }
 
@@ -80,15 +80,15 @@ export default function AdminWorkersPage() {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-display text-2xl text-neutral-900">Personal</h1>
+          <h1 className="font-display text-2xl text-neutral-900">Staff</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Hantera städare och arbetsledare — schema, profil och anställningsdetaljer.
+            Manage cleaners and supervisors — schedule, profile and employment details.
           </p>
         </div>
         {canManage && (
           <Button size="sm" onClick={() => { setShowAdd((v) => !v); setEditId(null) }}>
             {showAdd ? <X size={14} /> : <UserPlus size={14} />}
-            {showAdd ? 'Avbryt' : 'Lägg till personal'}
+            {showAdd ? 'Cancel' : 'Add staff'}
           </Button>
         )}
       </div>
@@ -105,16 +105,16 @@ export default function AdminWorkersPage() {
       {/* Stats bar */}
       {workers.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
-          <StatCard label="Totalt personal" value={workers.length} />
-          <StatCard label="Aktiva" value={workers.filter((w) => w.isActive).length} color="teal" />
-          <StatCard label="Inaktiva" value={workers.filter((w) => !w.isActive).length} color="neutral" />
+          <StatCard label="Total staff" value={workers.length} />
+          <StatCard label="Active" value={workers.filter((w) => w.isActive).length} color="teal" />
+          <StatCard label="Inactive" value={workers.filter((w) => !w.isActive).length} color="neutral" />
         </div>
       )}
 
       {/* Worker list */}
       {workers.length === 0 ? (
         <div className="bg-white border border-dashed border-neutral-200 rounded-xl p-10 text-center text-sm text-neutral-500">
-          Inga medarbetare registrerade ännu. Klicka "Lägg till personal" för att börja.
+          No staff registered yet. Click "Add staff" to begin.
         </div>
       ) : (
         <div className="space-y-3">
@@ -179,36 +179,36 @@ function WorkerRow({
   const [rSaving,    setRSaving]    = useState(false)
 
   const submitRange = async () => {
-    if (!rStart || !rEnd) { toast.error('Välj start- och slutdatum.'); return }
-    if (rDays.length === 0) { toast.error('Välj minst en veckodag.'); return }
+    if (!rStart || !rEnd) { toast.error('Choose start and end dates.'); return }
+    if (rDays.length === 0) { toast.error('Choose at least one weekday.'); return }
     setRSaving(true)
     try {
       const res = await adminApi.addStaffScheduleBulk(worker.id, {
         startDate: rStart, endDate: rEnd, weekdays: rDays,
         startTime: rStartTime, endTime: rEndTime, isAvailable: true,
       })
-      toast.success(`${res.data?.count ?? 0} schemadagar tillagda.`)
+      toast.success(`${res.data?.count ?? 0} schedule days added.`)
       setRStart(''); setREnd('')
       onScheduleAdded()
       setRangeOpen(false)
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte spara datumintervall.')
+      toast.error(err?.message ?? 'Could not save date range.')
     } finally {
       setRSaving(false)
     }
   }
 
   const submitSchedule = async () => {
-    if (!workDate) { toast.error('Välj ett datum.'); return }
+    if (!workDate) { toast.error('Choose a date.'); return }
     setSaving(true)
     try {
       await adminApi.addStaffSchedule(worker.id, { workDate, startTime, endTime, isAvailable: true })
-      toast.success('Schema sparat.')
+      toast.success('Schedule saved.')
       setWorkDate('')
       onScheduleAdded()
       onToggleSchedule()
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte spara schema.')
+      toast.error(err?.message ?? 'Could not save schedule.')
     } finally {
       setSaving(false)
     }
@@ -235,7 +235,7 @@ function WorkerRow({
             <p className="text-sm font-semibold text-neutral-900">{worker.fullName}</p>
             <RoleBadge role={worker.role} />
             {!worker.isActive && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-400">Inaktiv</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-400">Inactive</span>
             )}
           </div>
           <p className="text-xs text-neutral-400 mt-0.5">
@@ -247,11 +247,11 @@ function WorkerRow({
         <div className="hidden sm:flex items-center gap-5 text-center">
           <div>
             <p className="font-display text-lg text-brand-700">{totalHours}</p>
-            <p className="text-[11px] text-neutral-400">tim / 30 dgr</p>
+            <p className="text-[11px] text-neutral-400">hrs / 30 days</p>
           </div>
           <div>
             <p className="font-display text-lg text-teal-700">{worker.assignedJobCount ?? 0}</p>
-            <p className="text-[11px] text-neutral-400">jobb</p>
+            <p className="text-[11px] text-neutral-400">jobs</p>
           </div>
         </div>
 
@@ -262,7 +262,7 @@ function WorkerRow({
               <button
                 onClick={onEdit}
                 className="p-1.5 rounded-lg text-neutral-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
-                title="Redigera profil"
+                title="Edit profile"
               >
                 <Pencil size={14} />
               </button>
@@ -270,7 +270,7 @@ function WorkerRow({
                 <button
                   onClick={onDeactivate}
                   className="p-1.5 rounded-lg text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                  title="Avaktivera"
+                  title="Deactivate"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -280,7 +280,7 @@ function WorkerRow({
           <button
             onClick={onToggleExpand}
             className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors"
-            title={expanded ? 'Dölj detaljer' : 'Visa detaljer'}
+            title={expanded ? 'Hide details' : 'Show details'}
           >
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
@@ -292,12 +292,12 @@ function WorkerRow({
         <div className="border-t border-neutral-100 px-5 py-4 space-y-5">
           {/* Profile details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <ProfileField icon={<MapPin size={12} />} label="Adress">
+            <ProfileField icon={<MapPin size={12} />} label="Address">
               {worker.addressLine1
                 ? `${worker.addressLine1}, ${worker.postalCode ?? ''} ${worker.city ?? ''}`
                 : '—'}
             </ProfileField>
-            <ProfileField icon={<CreditCard size={12} />} label="Bankkonto">
+            <ProfileField icon={<CreditCard size={12} />} label="Bank account">
               {worker.bankClearingNo
                 ? `Clearingnr: ${worker.bankClearingNo}`
                 : '—'}
@@ -305,20 +305,20 @@ function WorkerRow({
                 <span className="block text-neutral-400">Konto: {maskBankAccount(worker.bankAccountEnc)}</span>
               )}
             </ProfileField>
-            <ProfileField icon={<Shield size={12} />} label="Personnummer">
+            <ProfileField icon={<Shield size={12} />} label="Personal ID">
               {worker.personnummerEnc ? '••••••-••••' : '—'}
             </ProfileField>
-            <ProfileField icon={<AlertTriangle size={12} />} label="Nödkontakt">
+            <ProfileField icon={<AlertTriangle size={12} />} label="Emergency contact">
               {worker.emergencyContact
                 ? `${worker.emergencyContact}${worker.emergencyPhone ? ` — ${worker.emergencyPhone}` : ''}`
                 : '—'}
             </ProfileField>
-            <ProfileField icon={<User2 size={12} />} label="Anställningsdatum">
+            <ProfileField icon={<User2 size={12} />} label="Hire date">
               {worker.hireDate
-                ? format(new Date(worker.hireDate), 'd MMM yyyy', { locale: sv })
+                ? format(new Date(worker.hireDate), 'd MMM yyyy', { locale: enGB })
                 : '—'}
             </ProfileField>
-            <ProfileField icon={<Mail size={12} />} label="Anteckningar">
+            <ProfileField icon={<Mail size={12} />} label="Notes">
               {worker.employmentNotes ?? '—'}
             </ProfileField>
           </div>
@@ -327,15 +327,15 @@ function WorkerRow({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-neutral-100">
             <div>
               <p className="text-xs font-semibold text-neutral-500 mb-2 flex items-center gap-1.5">
-                <CalendarDays size={12} /> Schema (30 dagar)
+                <CalendarDays size={12} /> Schedule (30 days)
               </p>
               {(worker.schedule?.length ?? 0) === 0 ? (
-                <p className="text-xs text-neutral-400">Inget schema inlagt.</p>
+                <p className="text-xs text-neutral-400">No schedule added.</p>
               ) : (
                 <ul className="space-y-1 max-h-36 overflow-y-auto">
                   {worker.schedule.map((d: any) => (
                     <li key={d.id} className="flex justify-between text-xs text-neutral-600">
-                      <span className="capitalize">{format(new Date(d.workDate), 'EEE d MMM', { locale: sv })}</span>
+                      <span className="capitalize">{format(new Date(d.workDate), 'EEE d MMM', { locale: enGB })}</span>
                       <span className={d.isAvailable ? 'text-neutral-700' : 'text-neutral-400 line-through'}>
                         {d.startTime}–{d.endTime}
                       </span>
@@ -349,13 +349,13 @@ function WorkerRow({
                     onClick={onToggleSchedule}
                     className="text-xs text-brand-600 hover:underline flex items-center gap-1"
                   >
-                    <Plus size={11} /> Lägg till schemadag
+                    <Plus size={11} /> Add schedule day
                   </button>
                   <button
                     onClick={() => setRangeOpen((v) => !v)}
                     className="text-xs text-brand-600 hover:underline flex items-center gap-1"
                   >
-                    <CalendarDays size={11} /> Lägg till datumintervall
+                    <CalendarDays size={11} /> Add date range
                   </button>
                 </div>
               )}
@@ -363,7 +363,7 @@ function WorkerRow({
                 <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-lg p-3 space-y-2">
                   <div className="flex flex-wrap gap-2">
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-0.5">Datum</label>
+                      <label className="block text-xs text-neutral-500 mb-0.5">Date</label>
                       <input type="date" value={workDate} onChange={(e) => setWorkDate(e.target.value)}
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
@@ -373,24 +373,24 @@ function WorkerRow({
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-0.5">Slut</label>
+                      <label className="block text-xs text-neutral-500 mb-0.5">End</label>
                       <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
                   </div>
-                  <Button size="sm" onClick={submitSchedule} loading={saving}>Spara dag</Button>
+                  <Button size="sm" onClick={submitSchedule} loading={saving}>Save day</Button>
                 </div>
               )}
               {rangeOpen && (
                 <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-lg p-3 space-y-3">
                   <div className="flex flex-wrap gap-2">
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-0.5">Från datum</label>
+                      <label className="block text-xs text-neutral-500 mb-0.5">From date</label>
                       <input type="date" value={rStart} onChange={(e) => setRStart(e.target.value)}
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-0.5">Till datum</label>
+                      <label className="block text-xs text-neutral-500 mb-0.5">To date</label>
                       <input type="date" value={rEnd} onChange={(e) => setREnd(e.target.value)}
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
@@ -400,15 +400,15 @@ function WorkerRow({
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-0.5">Slut</label>
+                      <label className="block text-xs text-neutral-500 mb-0.5">End</label>
                       <input type="time" value={rEndTime} onChange={(e) => setREndTime(e.target.value)}
                         className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-neutral-500 mb-1">Veckodagar</label>
+                    <label className="block text-xs text-neutral-500 mb-1">Weekdays</label>
                     <div className="flex flex-wrap gap-1.5">
-                      {([['Mån', 1], ['Tis', 2], ['Ons', 3], ['Tor', 4], ['Fre', 5], ['Lör', 6], ['Sön', 0]] as [string, number][]).map(([lbl, num]) => {
+                      {([['Mon', 1], ['Tue', 2], ['Wed', 3], ['Thu', 4], ['Fri', 5], ['Sat', 6], ['Sun', 0]] as [string, number][]).map(([lbl, num]) => {
                         const on = rDays.includes(num)
                         return (
                           <button key={num} type="button"
@@ -421,26 +421,26 @@ function WorkerRow({
                     </div>
                   </div>
                   <p className="text-xs text-neutral-400">
-                    Skapar tillgängliga dagar för alla valda veckodagar i intervallet — kunder kan då boka dessa tider.
+                    Creates available days for all selected weekdays in the range — customers can then book those times.
                   </p>
-                  <Button size="sm" onClick={submitRange} loading={rSaving}>Spara intervall</Button>
+                  <Button size="sm" onClick={submitRange} loading={rSaving}>Save range</Button>
                 </div>
               )}
             </div>
 
             <div>
               <p className="text-xs font-semibold text-neutral-500 mb-2 flex items-center gap-1.5">
-                <Briefcase size={12} /> Tilldelade jobb
+                <Briefcase size={12} /> Assigned jobs
               </p>
               {(worker.assignedJobs?.length ?? 0) === 0 ? (
-                <p className="text-xs text-neutral-400">Inga tilldelade jobb.</p>
+                <p className="text-xs text-neutral-400">No assigned jobs.</p>
               ) : (
                 <ul className="space-y-1.5 max-h-36 overflow-y-auto">
                   {worker.assignedJobs.map((j: any) => (
                     <li key={j.id} className="text-xs text-neutral-600">
                       <span className="font-medium text-neutral-800">{j.customer?.fullName}</span>
                       {' — '}
-                      <span>{format(new Date(j.scheduledAt), 'EEE d MMM HH:mm', { locale: sv })}</span>
+                      <span>{format(new Date(j.scheduledAt), 'EEE d MMM HH:mm', { locale: enGB })}</span>
                       {j.property && <span className="text-neutral-400"> · {j.property.addressLine1}</span>}
                     </li>
                   ))}
@@ -473,13 +473,13 @@ function RoleBadge({ role }: { role: string }) {
   if (role === 'coordinator') {
     return (
       <span className="text-2xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-medium">
-        Arbetsledare
+        Supervisor
       </span>
     )
   }
   return (
     <span className="text-2xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">
-      Städare
+      Cleaner
     </span>
   )
 }
@@ -504,7 +504,7 @@ function WorkerForm({
   const [email,            setEmail]            = useState('')
   const [phone,            setPhone]            = useState('')
   const [role,             setRole]             = useState<'staff' | 'coordinator'>('staff')
-  const [personnummer,     setPersonnummer]     = useState('')
+  const [personnummer,     setPersonal ID]     = useState('')
   const [addressLine1,     setAddressLine1]     = useState('')
   const [city,             setCity]             = useState('')
   const [postalCode,       setPostalCode]       = useState('')
@@ -535,7 +535,7 @@ function WorkerForm({
         setEmploymentNotes(w.employmentNotes ?? '')
         if (w.hireDate) setHireDate(w.hireDate.slice(0, 10))
       } catch {
-        toast.error('Kunde inte ladda profil.')
+        toast.error('Could not load profile.')
         onCancel()
       } finally {
         setLoading(false)
@@ -544,8 +544,8 @@ function WorkerForm({
   }, [workerId])
 
   const submit = async () => {
-    if (!fullName.trim()) { toast.error('Namn krävs.'); return }
-    if (!isEdit && !email.trim()) { toast.error('E-post krävs.'); return }
+    if (!fullName.trim()) { toast.error('Name is required.'); return }
+    if (!isEdit && !email.trim()) { toast.error('Email is required.'); return }
     setSaving(true)
     try {
       if (isEdit) {
@@ -564,7 +564,7 @@ function WorkerForm({
           hireDate:         hireDate || null,
           employmentNotes:  employmentNotes.trim() || null,
         })
-        toast.success('Profil uppdaterad.')
+        toast.success('Profile updated.')
         onDone()
       } else {
         const res = await adminApi.createWorker({
@@ -586,12 +586,12 @@ function WorkerForm({
         if (res.data?.tempPassword) {
           setCreated({ fullName: fullName.trim(), email: email.trim(), tempPassword: res.data.tempPassword })
         } else {
-          toast.success('Medarbetare skapad.')
+          toast.success('Staff member created.')
           onDone()
         }
       }
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte spara.')
+      toast.error(err?.message ?? 'Could not save.')
     } finally {
       setSaving(false)
     }
@@ -604,26 +604,26 @@ function WorkerForm({
         <div className="flex items-center gap-2">
           <CheckCircle2 size={16} className="text-teal-500 shrink-0" />
           <p className="text-sm font-semibold text-neutral-900">
-            {role === 'coordinator' ? 'Arbetsledare skapad!' : 'Städare skapad!'}
+            {role === 'coordinator' ? 'Supervisor created!' : 'Cleaner created!'}
           </p>
         </div>
         <p className="text-xs text-neutral-600">
-          Dela inloggningsuppgifterna med <strong>{created.fullName}</strong>. Be dem logga in och byta lösenord direkt.
+          Share the login details with <strong>{created.fullName}</strong>. Ask them to log in and change the password right away.
         </p>
         <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 space-y-2 text-xs font-mono">
-          <div><span className="text-neutral-400">E-post: </span>{created.email}</div>
+          <div><span className="text-neutral-400">Email: </span>{created.email}</div>
           <div className="flex items-center justify-between">
-            <span><span className="text-neutral-400">Lösenord: </span>{created.tempPassword}</span>
+            <span><span className="text-neutral-400">Password: </span>{created.tempPassword}</span>
             <button
               onClick={() => { navigator.clipboard.writeText(created.tempPassword); toast.success('Kopierat!') }}
               className="p-1 text-neutral-400 hover:text-neutral-700 transition-colors"
-              title="Kopiera lösenord"
+              title="Copy password"
             >
               <Copy size={12} />
             </button>
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={onDone}>Klar</Button>
+        <Button size="sm" variant="outline" onClick={onDone}>Done</Button>
       </div>
     )
   }
@@ -640,7 +640,7 @@ function WorkerForm({
     <div className="bg-white border border-brand-200 rounded-xl p-5 space-y-5">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-neutral-900">
-          {isEdit ? 'Redigera profil' : 'Lägg till ny medarbetare'}
+          {isEdit ? 'Edit profile' : 'Add new staff member'}
         </p>
         <button onClick={onCancel} className="text-neutral-400 hover:text-neutral-700 transition-colors">
           <X size={16} />
@@ -648,35 +648,35 @@ function WorkerForm({
       </div>
 
       {/* Section: Basic info */}
-      <FormSection title="Grunduppgifter">
+      <FormSection title="Basic details">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormField label="Fullständigt namn *">
+          <FormField label="Full name *">
             <input value={fullName} onChange={(e) => setFullName(e.target.value)}
               className="form-input" placeholder="Anna Andersson" />
           </FormField>
           {!isEdit && (
-            <FormField label="E-postadress *">
+            <FormField label="Email address *">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 className="form-input" placeholder="anna@exempel.se" />
             </FormField>
           )}
-          <FormField label="Telefon">
+          <FormField label="Phone">
             <input value={phone} onChange={(e) => setPhone(e.target.value)}
               className="form-input" placeholder="+46 70X XXX XX XX" />
           </FormField>
-          <FormField label="Roll">
+          <FormField label="Role">
             <div className="flex gap-2">
               {(['staff', 'coordinator'] as const).map((r) => (
                 <button key={r} type="button" onClick={() => setRole(r)}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${
                     role === r ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
                   }`}>
-                  {r === 'staff' ? 'Städare' : 'Arbetsledare'}
+                  {r === 'staff' ? 'Cleaner' : 'Supervisor'}
                 </button>
               ))}
             </div>
           </FormField>
-          <FormField label="Anställningsdatum">
+          <FormField label="Hire date">
             <input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)}
               className="form-input" />
           </FormField>
@@ -686,15 +686,15 @@ function WorkerForm({
       {/* Section: Address */}
       <FormSection title="Adress">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <FormField label="Gatuadress" className="sm:col-span-3">
+          <FormField label="Street address" className="sm:col-span-3">
             <input value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)}
               className="form-input" placeholder="Storgatan 1" />
           </FormField>
-          <FormField label="Postnummer">
+          <FormField label="Postal code">
             <input value={postalCode} onChange={(e) => setPostalCode(e.target.value)}
               className="form-input" placeholder="123 45" />
           </FormField>
-          <FormField label="Ort" className="sm:col-span-2">
+          <FormField label="City" className="sm:col-span-2">
             <input value={city} onChange={(e) => setCity(e.target.value)}
               className="form-input" placeholder="Stockholm" />
           </FormField>
@@ -702,17 +702,17 @@ function WorkerForm({
       </FormSection>
 
       {/* Section: Personal / bank (sensitive) */}
-      <FormSection title="Känsliga uppgifter" hint="Krypteras och lagras säkert">
+      <FormSection title="Sensitive details" hint="Encrypted and stored securely">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormField label={isEdit ? 'Personnummer (lämna tomt = ändra ej)' : 'Personnummer'}>
-            <input value={personnummer} onChange={(e) => setPersonnummer(e.target.value)}
-              className="form-input" placeholder="ÅÅMMDD-XXXX" />
+          <FormField label={isEdit ? 'Personal ID (leave blank = keep)' : 'Personal ID'}>
+            <input value={personnummer} onChange={(e) => setPersonal ID(e.target.value)}
+              className="form-input" placeholder="YYMMDD-XXXX" />
           </FormField>
-          <FormField label="Clearingnummer (bank)">
+          <FormField label="Clearing number (bank)">
             <input value={bankClearingNo} onChange={(e) => setBankClearingNo(e.target.value)}
               className="form-input" placeholder="XXXX" />
           </FormField>
-          <FormField label={isEdit ? 'Kontonummer (lämna tomt = ändra ej)' : 'Kontonummer'}>
+          <FormField label={isEdit ? 'Account number (leave blank = keep)' : 'Account number'}>
             <input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)}
               className="form-input" placeholder="XXXXXXXXXX" />
           </FormField>
@@ -720,13 +720,13 @@ function WorkerForm({
       </FormSection>
 
       {/* Section: Emergency contact */}
-      <FormSection title="Nödkontakt">
+      <FormSection title="Emergency contact">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormField label="Namn">
+          <FormField label="Name">
             <input value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)}
-              className="form-input" placeholder="Kontaktpersonens namn" />
+              className="form-input" placeholder="Contact person name" />
           </FormField>
-          <FormField label="Telefon">
+          <FormField label="Phone">
             <input value={emergencyPhone} onChange={(e) => setEmergencyPhone(e.target.value)}
               className="form-input" placeholder="+46 70X XXX XX XX" />
           </FormField>
@@ -734,21 +734,21 @@ function WorkerForm({
       </FormSection>
 
       {/* Section: Notes */}
-      <FormSection title="Interna anteckningar">
+      <FormSection title="Internal notes">
         <textarea
           value={employmentNotes}
           onChange={(e) => setEmploymentNotes(e.target.value)}
           rows={3}
           className="form-input w-full resize-none"
-          placeholder="Anteckningar om anställning, erfarenhet, specialkompetens…"
+          placeholder="Notes about employment, experience, special skills…"
         />
       </FormSection>
 
       <div className="flex items-center gap-3 pt-1">
         <Button size="sm" onClick={submit} loading={saving}>
-          {isEdit ? 'Spara ändringar' : 'Skapa medarbetare'}
+          {isEdit ? 'Save changes' : 'Create staff member'}
         </Button>
-        <Button size="sm" variant="outline" onClick={onCancel}>Avbryt</Button>
+        <Button size="sm" variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </div>
   )

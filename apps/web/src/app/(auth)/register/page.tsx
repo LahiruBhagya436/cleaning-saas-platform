@@ -15,23 +15,23 @@ import { toast } from 'sonner'
 
 const schema = z
   .object({
-    fullName:        z.string().min(2, 'Ange ditt fullständiga namn'),
-    email:           z.string().email('Ange en giltig e-postadress'),
-    phone:           z.string().min(8, 'Ange ett giltigt telefonnummer').optional().or(z.literal('')),
-    password:        z.string().min(8, 'Lösenordet måste vara minst 8 tecken'),
+    fullName:        z.string().min(2, 'Enter your full name'),
+    email:           z.string().email('Enter a valid email address'),
+    phone:           z.string().min(8, 'Enter a valid phone number').optional().or(z.literal('')),
+    password:        z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
-    message: 'Lösenorden matchar inte',
+    message: 'Passwords do not match',
     path:    ['confirmPassword'],
   })
 
 type FormData = z.infer<typeof schema>
 
 const PASSWORD_RULES = [
-  { label: 'Minst 8 tecken',        test: (p: string) => p.length >= 8 },
-  { label: 'Innehåller en siffra',  test: (p: string) => /\d/.test(p) },
-  { label: 'Innehåller en bokstav', test: (p: string) => /[a-zA-Z]/.test(p) },
+  { label: 'At least 8 characters',        test: (p: string) => p.length >= 8 },
+  { label: 'Contains a number',  test: (p: string) => /\d/.test(p) },
+  { label: 'Contains a letter', test: (p: string) => /[a-zA-Z]/.test(p) },
 ]
 
 export default function RegisterPage() {
@@ -66,18 +66,18 @@ export default function RegisterPage() {
       })
 
       if (result?.error) {
-        toast.error('Konto skapat men inloggning misslyckades. Försök logga in manuellt.')
+        toast.error('Account created but login failed. Please log in manually.')
         router.push('/login')
         return
       }
 
-      toast.success('Välkommen! Ditt konto är skapat.')
+      toast.success('Welcome! Your account has been created.')
       router.push('/dashboard')
       router.refresh()
     } catch (err: any) {
-      const message = err?.message ?? 'Något gick fel. Försök igen.'
+      const message = err?.message ?? 'Something went wrong. Please try again.'
       if (message.includes('EMAIL_TAKEN') || message.includes('already registered')) {
-        toast.error('E-postadressen är redan registrerad. Vill du logga in?')
+        toast.error('That email is already registered. Would you like to log in?')
       } else {
         toast.error(message)
       }
@@ -94,12 +94,12 @@ export default function RegisterPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-display text-3xl text-neutral-900 mb-2">
-          Skapa konto
+          Create account
         </h1>
         <p className="text-sm text-neutral-500">
-          Redan kund?{' '}
+          Already a customer?{' '}
           <Link href="/login" className="text-brand-600 font-medium hover:underline">
-            Logga in här
+            Log in here
           </Link>
         </p>
       </div>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        Registrera med Google
+        Sign up with Google
       </Button>
 
       {/* Divider */}
@@ -127,7 +127,7 @@ export default function RegisterPage() {
           <div className="w-full border-t border-neutral-200" />
         </div>
         <div className="relative flex justify-center text-xs text-neutral-400">
-          <span className="bg-neutral-50 px-3">eller med e-post</span>
+          <span className="bg-neutral-50 px-3">or with email</span>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function RegisterPage() {
 
         {/* Full name */}
         <div>
-          <Label htmlFor="fullName">Fullständigt namn</Label>
+          <Label htmlFor="fullName">Full name</Label>
           <Input
             id="fullName"
             placeholder="Anna Lindqvist"
@@ -151,11 +151,11 @@ export default function RegisterPage() {
 
         {/* Email */}
         <div>
-          <Label htmlFor="email">E-postadress</Label>
+          <Label htmlFor="email">Email address</Label>
           <Input
             id="email"
             type="email"
-            placeholder="din@email.se"
+            placeholder="you@email.com"
             autoComplete="email"
             error={errors.email?.message}
             {...register('email')}
@@ -168,8 +168,8 @@ export default function RegisterPage() {
         {/* Phone (optional) */}
         <div>
           <Label htmlFor="phone">
-            Telefonnummer{' '}
-            <span className="text-neutral-400 font-normal">(valfritt)</span>
+            Phone number{' '}
+            <span className="text-neutral-400 font-normal">(optional)</span>
           </Label>
           <Input
             id="phone"
@@ -182,12 +182,12 @@ export default function RegisterPage() {
 
         {/* Password */}
         <div>
-          <Label htmlFor="password">Lösenord</Label>
+          <Label htmlFor="password">Password</Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Minst 8 tecken"
+              placeholder="At least 8 characters"
               autoComplete="new-password"
               error={errors.password?.message}
               className="pr-10"
@@ -223,12 +223,12 @@ export default function RegisterPage() {
 
         {/* Confirm password */}
         <div>
-          <Label htmlFor="confirmPassword">Bekräfta lösenord</Label>
+          <Label htmlFor="confirmPassword">Confirm password</Label>
           <div className="relative">
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Samma lösenord igen"
+              placeholder="Same password again"
               autoComplete="new-password"
               error={errors.confirmPassword?.message}
               className="pr-10"
@@ -249,13 +249,13 @@ export default function RegisterPage() {
 
         {/* Terms */}
         <p className="text-xs text-neutral-400 leading-relaxed">
-          Genom att registrera dig godkänner du våra{' '}
+          By registering you agree to our{' '}
           <Link href="/terms" className="text-brand-600 hover:underline">
-            användarvillkor
+            terms of use
           </Link>{' '}
-          och{' '}
+          and{' '}
           <Link href="/privacy" className="text-brand-600 hover:underline">
-            integritetspolicy
+            privacy policy
           </Link>
           .
         </p>
@@ -266,7 +266,7 @@ export default function RegisterPage() {
           size="lg"
           loading={isSubmitting}
         >
-          Skapa konto
+          Create account
           <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
         </Button>
       </form>

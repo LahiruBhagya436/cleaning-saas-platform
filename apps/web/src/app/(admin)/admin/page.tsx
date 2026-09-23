@@ -40,17 +40,17 @@ export default function AdminDashboardPage() {
   }
 
   const CARDS = [
-    { label: 'Bokningar idag',     value: stats?.totalBookingsToday ?? 0,                        icon: CalendarDays, color: 'text-brand-600 bg-brand-50' },
-    { label: 'Aktiv personal',     value: stats?.activeStaff ?? 0,                                icon: Users,        color: 'text-teal-600 bg-teal-50'   },
-    { label: 'Intäkter denna mån', value: formatSEK(stats?.revenueThisMonth ?? 0, true),           icon: Banknote,     color: 'text-amber-600 bg-amber-50' },
-    { label: 'RUT väntande',       value: stats?.rutPendingCount ?? 0,                             icon: FileWarning,  color: 'text-red-600 bg-red-50'     },
+    { label: 'Bookings today',     value: stats?.totalBookingsToday ?? 0,                        icon: CalendarDays, color: 'text-brand-600 bg-brand-50' },
+    { label: 'Active staff',     value: stats?.activeStaff ?? 0,                                icon: Users,        color: 'text-teal-600 bg-teal-50'   },
+    { label: 'Revenue this month', value: formatSEK(stats?.revenueThisMonth ?? 0, true),           icon: Banknote,     color: 'text-amber-600 bg-amber-50' },
+    { label: 'RUT pending',       value: stats?.rutPendingCount ?? 0,                             icon: FileWarning,  color: 'text-red-600 bg-red-50'     },
   ]
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl text-neutral-900">Admin — Översikt</h1>
-        <p className="text-sm text-neutral-500 mt-1">Status för bokningar, personal och intäkter.</p>
+        <h1 className="font-display text-2xl text-neutral-900">Admin — Overview</h1>
+        <p className="text-sm text-neutral-500 mt-1">Status for bookings, staff and revenue.</p>
       </div>
 
       {/* Stat cards */}
@@ -71,12 +71,12 @@ export default function AdminDashboardPage() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-amber-800">
-              {unassigned.length} bokning{unassigned.length > 1 ? 'ar' : ''} utan tilldelad personal
+              {unassigned.length} booking{unassigned.length > 1 ? 's' : ''} without assigned staff
             </p>
-            <p className="text-xs text-amber-600 mt-0.5">Tilldela en städare så snart som möjligt.</p>
+            <p className="text-xs text-amber-600 mt-0.5">Assign a cleaner as soon as possible.</p>
           </div>
           <Link href="/admin/bookings" className="text-xs font-medium text-amber-700 hover:underline whitespace-nowrap flex items-center gap-1">
-            Tilldela nu <ArrowRight size={12} />
+            Assign now <ArrowRight size={12} />
           </Link>
         </div>
       )}
@@ -84,9 +84,9 @@ export default function AdminDashboardPage() {
       {/* Recent bookings */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-sans font-medium text-neutral-900">Senaste bokningar</h2>
+          <h2 className="font-sans font-medium text-neutral-900">Recent bookings</h2>
           <Link href="/admin/bookings" className="text-xs text-brand-600 hover:underline flex items-center gap-1">
-            Se alla <ArrowRight size={12} />
+            See all <ArrowRight size={12} />
           </Link>
         </div>
 

@@ -10,12 +10,12 @@ import { cn } from '@/lib/utils'
 import type { BookingData } from '@/app/book/page'
 
 const DURATION_OPTIONS = [
-  { label: '1 timme',     value: 60  },
-  { label: '1.5 timmar',  value: 90  },
-  { label: '2 timmar',    value: 120 },
-  { label: '3 timmar',    value: 180 },
-  { label: '4 timmar',    value: 240 },
-  { label: '6 timmar',    value: 360 },
+  { label: '1 hour',     value: 60  },
+  { label: '1.5 hours',  value: 90  },
+  { label: '2 hours',    value: 120 },
+  { label: '3 hours',    value: 180 },
+  { label: '4 hours',    value: 240 },
+  { label: '6 hours',    value: 360 },
 ]
 
 const SERVICE_ICONS: Record<string, string> = {
@@ -44,7 +44,7 @@ export function StepService({ data, update, onNext }: Props) {
       .then((res) => setServices(res.data))
       .catch((err) => {
         console.error('Failed to load services:', err)
-        toast.error('Kunde inte hämta tjänster. Försök ladda om sidan.')
+        toast.error('Could not load services. Please reload the page.')
         setServices([])
       })
       .finally(() => setLoading(false))
@@ -96,7 +96,7 @@ export function StepService({ data, update, onNext }: Props) {
       {/* Service list */}
       <div>
         <h2 className="font-sans font-medium text-neutral-900 mb-4">
-          Välj tjänst
+          Choose a service
         </h2>
         <div className="space-y-3">
           {services.map((svc) => {
@@ -141,16 +141,16 @@ export function StepService({ data, update, onNext }: Props) {
                   {svc.rutEligible ? (
                     <>
                       <p className="text-xs text-neutral-400 line-through">
-                        {formatSEK(total)}/tim
+                        {formatSEK(total)}/hr
                       </p>
                       <p className="text-sm font-medium text-teal-600">
-                        {formatSEK(afterRut)}/tim
+                        {formatSEK(afterRut)}/hr
                       </p>
-                      <p className="text-2xs text-neutral-400">med RUT</p>
+                      <p className="text-2xs text-neutral-400">with RUT</p>
                     </>
                   ) : (
                     <p className="text-sm font-medium text-neutral-800">
-                      {formatSEK(total)}/tim
+                      {formatSEK(total)}/hr
                     </p>
                   )}
                 </div>
@@ -174,7 +174,7 @@ export function StepService({ data, update, onNext }: Props) {
       {data.serviceId && (
         <div>
           <h2 className="font-sans font-medium text-neutral-900 mb-3">
-            Hur länge?
+            How long?
           </h2>
           <div className="grid grid-cols-3 gap-2">
             {DURATION_OPTIONS.map(({ label, value }) => {
@@ -203,21 +203,21 @@ export function StepService({ data, update, onNext }: Props) {
       {canContinue && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-4">
           <div className="flex justify-between text-sm mb-1.5">
-            <span className="text-neutral-500">Arbetskostnad</span>
+            <span className="text-neutral-500">Labour cost</span>
             <span>{formatSEK(data.totalExclVat)}</span>
           </div>
           <div className="flex justify-between text-sm mb-1.5">
-            <span className="text-neutral-500">Moms (25%)</span>
+            <span className="text-neutral-500">VAT (25%)</span>
             <span>{formatSEK(data.vatAmount)}</span>
           </div>
           {data.rutDeduction > 0 && (
             <div className="flex justify-between text-sm text-teal-600 mb-1.5">
-              <span>RUT-avdrag (−50%)</span>
+              <span>RUT deduction (−50%)</span>
               <span>−{formatSEK(data.rutDeduction)}</span>
             </div>
           )}
           <div className="border-t border-neutral-200 mt-2 pt-2 flex justify-between font-medium">
-            <span className="text-neutral-900">Du betalar</span>
+            <span className="text-neutral-900">You pay</span>
             <span className="text-brand-700 font-display text-lg">
               {formatSEK(data.customerPays)}
             </span>
@@ -231,7 +231,7 @@ export function StepService({ data, update, onNext }: Props) {
         disabled={!canContinue}
         onClick={onNext}
       >
-        Fortsätt — välj adress
+        Continue — choose address
         <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
       </Button>
     </div>

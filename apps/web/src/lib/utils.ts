@@ -64,11 +64,11 @@ export function calculateRutDisplay(totalInclVat: number): {
 
 // ── Booking status labels ─────────────────────────────────────────────────────
 export const BOOKING_STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending:     { label: 'Väntar',     color: 'text-amber-600 bg-amber-50' },
-  confirmed:   { label: 'Bekräftad',  color: 'text-teal-600 bg-teal-50' },
-  in_progress: { label: 'Pågår',      color: 'text-brand-600 bg-brand-50' },
-  completed:   { label: 'Klar',       color: 'text-neutral-600 bg-neutral-100' },
-  cancelled:   { label: 'Avbokad',    color: 'text-red-600 bg-red-50' },
+  pending:     { label: 'Pending',     color: 'text-amber-600 bg-amber-50' },
+  confirmed:   { label: 'Confirmed',  color: 'text-teal-600 bg-teal-50' },
+  in_progress: { label: 'In progress',      color: 'text-brand-600 bg-brand-50' },
+  completed:   { label: 'Done',       color: 'text-neutral-600 bg-neutral-100' },
+  cancelled:   { label: 'Cancelled',    color: 'text-red-600 bg-red-50' },
 }
 
 // ── Truncate text ─────────────────────────────────────────────────────────────

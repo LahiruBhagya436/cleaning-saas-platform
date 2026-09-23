@@ -8,3 +8,8 @@ dist/
 coverage/
 *.tsbuildinfo
 prisma/migrations/dev.db
+
+# device-bridge staging artifacts and one-off scripts
+_tmp_*
+create-superadmin.js
+apps/api/create-superadmin.js

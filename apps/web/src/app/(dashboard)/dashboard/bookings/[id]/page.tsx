@@ -32,14 +32,14 @@ export default function BookingDetailPage() {
     if (!id) return
     bookingsApi.get(id)
       .then((res) => setBooking(res.data))
-      .catch(() => toast.error('Bokning hittades inte.'))
+      .catch(() => toast.error('Booking not found.'))
       .finally(() => setLoading(false))
   }, [id])
 
   const handleCancel = async (reason: string) => {
     try {
       await bookingsApi.cancel(id, reason)
-      toast.success('Bokning avbokad.')
+      toast.success('Booking cancelled.')
       setCancelTarget(false)
       router.push('/dashboard/bookings')
     } catch (err: any) {
@@ -49,16 +49,16 @@ export default function BookingDetailPage() {
 
   const handleReview = async () => {
     if (!rating) {
-      toast.error('Välj ett betyg.')
+      toast.error('Choose a rating.')
       return
     }
     setSubmittingReview(true)
     try {
       await reviewsApi.create({ bookingId: id, rating, comment })
-      toast.success('Tack för ditt omdöme!')
+      toast.success('Thanks for your review!')
       setReviewDone(true)
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte skicka omdöme.')
+      toast.error(err?.message ?? 'Could not submit review.')
     } finally {
       setSubmittingReview(false)
     }
@@ -110,7 +110,7 @@ export default function BookingDetailPage() {
             </Badge>
           </div>
           <h1 className="font-display text-2xl text-white">
-            {booking.items?.[0]?.service?.nameSv ?? 'Städning'}
+            {booking.items?.[0]?.service?.nameSv ?? 'Cleaning'}
           </h1>
           <p className="text-brand-200 text-sm mt-1">
             Boknings-ID: <span className="font-mono">{booking.id.slice(0, 8).toUpperCase()}</span>
@@ -145,7 +145,7 @@ export default function BookingDetailPage() {
             <div className="flex items-start gap-3 sm:col-span-2">
               <MapPin size={17} className="text-neutral-400 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs text-neutral-400 mb-0.5">Adress</p>
+                <p className="text-xs text-neutral-400 mb-0.5">Address</p>
                 <p className="text-sm font-medium text-neutral-900">
                   {booking.property.addressLine1}
                 </p>
@@ -199,7 +199,7 @@ export default function BookingDetailPage() {
               <FileText size={16} className="text-neutral-500" />
             </div>
             <div>
-              <p className="text-sm font-medium text-neutral-900">Faktura</p>
+              <p className="text-sm font-medium text-neutral-900">Invoice</p>
               <p className="text-xs text-neutral-400 font-mono">{booking.invoice.invoiceNumber}</p>
             </div>
           </div>
@@ -212,9 +212,9 @@ export default function BookingDetailPage() {
       {/* Review form */}
       {canReview && (
         <div className="bg-white border border-neutral-200 rounded-xl p-5">
-          <h2 className="font-medium text-neutral-900 mb-1">Lämna ett omdöme</h2>
+          <h2 className="font-medium text-neutral-900 mb-1">Leave a review</h2>
           <p className="text-sm text-neutral-500 mb-4">
-            Hur nöjd är du med städningen?
+            How happy are you with the cleaning?
           </p>
 
           {/* Star rating */}
@@ -238,7 +238,7 @@ export default function BookingDetailPage() {
           </div>
 
           <textarea
-            placeholder="Berätta gärna om din upplevelse... (valfritt)"
+            placeholder="Tell us about your experience... (optional)"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}
@@ -247,7 +247,7 @@ export default function BookingDetailPage() {
 
           <Button onClick={handleReview} loading={submittingReview} disabled={!rating}>
             <Star size={14} />
-            Skicka omdöme
+            Submit review
           </Button>
         </div>
       )}
@@ -255,7 +255,7 @@ export default function BookingDetailPage() {
       {reviewDone && (
         <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center gap-3">
           <CheckCircle size={18} className="text-teal-600 shrink-0" />
-          <p className="text-sm text-teal-700 font-medium">Tack! Ditt omdöme har skickats.</p>
+          <p className="text-sm text-teal-700 font-medium">Thanks! Your review has been submitted.</p>
         </div>
       )}
 
@@ -268,11 +268,11 @@ export default function BookingDetailPage() {
             className="text-red-500 border-red-200 hover:bg-red-50"
           >
             <X size={14} />
-            Avboka
+            Cancel
           </Button>
         )}
         <Button asChild variant="outline">
-          <Link href="/book">Boka igen</Link>
+          <Link href="/book">Book again</Link>
         </Button>
       </div>
 

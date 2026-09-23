@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import {
   FileText, Download,
   Loader2, CheckCircle, Clock, AlertCircle, CreditCard
@@ -16,11 +16,11 @@ import { Badge } from '@/components/dashboard/Badge'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
-  draft:   { label: 'Utkast',    color: 'text-neutral-600 bg-neutral-100', icon: FileText      },
-  sent:    { label: 'Skickad',   color: 'text-brand-600 bg-brand-50',      icon: Clock         },
-  paid:    { label: 'Betald',    color: 'text-teal-600 bg-teal-50',        icon: CheckCircle   },
-  overdue: { label: 'Förfallen', color: 'text-red-600 bg-red-50',          icon: AlertCircle   },
-  void:    { label: 'Makulerad', color: 'text-neutral-400 bg-neutral-100', icon: FileText      },
+  draft:   { label: 'Draft',    color: 'text-neutral-600 bg-neutral-100', icon: FileText      },
+  sent:    { label: 'Sent',   color: 'text-brand-600 bg-brand-50',      icon: Clock         },
+  paid:    { label: 'Paid',    color: 'text-teal-600 bg-teal-50',        icon: CheckCircle   },
+  overdue: { label: 'Overdue', color: 'text-red-600 bg-red-50',          icon: AlertCircle   },
+  void:    { label: 'Void', color: 'text-neutral-400 bg-neutral-100', icon: FileText      },
 }
 
 export default function InvoicesPage() {
@@ -41,13 +41,13 @@ function InvoicesPageContent() {
   useEffect(() => {
     invoicesApi.list()
       .then((res) => setInvoices(res.data ?? []))
-      .catch(() => toast.error('Kunde inte hämta fakturor.'))
+      .catch(() => toast.error('Could not load invoices.'))
       .finally(() => setLoading(false))
   }, [])
 
   useEffect(() => {
     if (searchParams.get('cancelled') === '1') {
-      toast.info('Betalningen avbröts. Du kan försöka igen när du vill.')
+      toast.info('Payment was cancelled. You can try again whenever you like.')
     }
   }, [searchParams])
 
@@ -109,9 +109,9 @@ function InvoicesPageContent() {
       {invoices.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="Inga fakturor ännu"
-          description="Fakturor skapas automatiskt när en städning är slutförd."
-          action={{ label: 'Boka städning', href: '/book' }}
+          title="No invoices yet"
+          description="Invoices are created automatically when a cleaning is completed."
+          action={{ label: 'Book cleaning', href: '/book' }}
         />
       ) : (
         <div className="space-y-3">
@@ -142,9 +142,9 @@ function InvoicesPageContent() {
                       <Badge className={cfg.color}>{cfg.label}</Badge>
                     </div>
                     <p className="text-xs text-neutral-400">
-                      Utfärdad {format(new Date(invoice.issuedAt), 'd MMM yyyy', { locale: sv })}
+                      Issued {format(new Date(invoice.issuedAt), 'd MMM yyyy', { locale: enGB })}
                       {' · '}
-                      Förfaller {format(new Date(invoice.dueAt), 'd MMM yyyy', { locale: sv })}
+                      Due {format(new Date(invoice.dueAt), 'd MMM yyyy', { locale: enGB })}
                     </p>
                   </div>
 
@@ -195,11 +195,11 @@ function InvoicesPageContent() {
                           ? 'bg-red-50 text-red-600'
                           : 'bg-brand-50 text-brand-600'
                       }`}>
-                        RUT-ansökan: {
-                          invoice.rutClaim.claimStatus === 'approved' ? '✓ Godkänd av Skatteverket' :
+                        RUT claim: {
+                          invoice.rutClaim.claimStatus === 'approved' ? '✓ Approved by Skatteverket' :
                           invoice.rutClaim.claimStatus === 'rejected' ? '✗ Nekad av Skatteverket' :
                           invoice.rutClaim.claimStatus === 'submitted' ? '⏳ Inskickad till Skatteverket' :
-                          '⏳ Väntar på inskickning'
+                          '⏳ Awaiting submission'
                         }
                       </div>
                     )}
@@ -217,7 +217,7 @@ function InvoicesPageContent() {
                           ) : (
                             <CreditCard size={13} />
                           )}
-                          Betala nu
+                          Pay now
                         </Button>
                       )}
                       {invoice.pdfUrl ? (

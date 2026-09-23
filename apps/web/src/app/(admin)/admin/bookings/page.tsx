@@ -5,13 +5,13 @@ import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
   isSameMonth, isSameDay, addMonths, subMonths, getDay,
 } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Loader2, CalendarDays, X, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminApi } from '@/lib/api'
 import { BOOKING_STATUS_LABELS, cn } from '@/lib/utils'
 
-const WEEKDAYS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön']
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 // Left-border accent + soft background per status (colourful board)
 const STATUS_CHIP: Record<string, string> = {
@@ -46,7 +46,7 @@ export default function AdminBookingsPage() {
       setBookings(bRes.data ?? [])
       setWorkers((wRes.data ?? []).filter((w: any) => w.isActive))
     } catch {
-      toast.error('Kunde inte hämta bokningar.')
+      toast.error('Could not load bookings.')
     } finally {
       setLoading(false)
     }
@@ -71,10 +71,10 @@ export default function AdminBookingsPage() {
     try {
       const updated = await adminApi.assignBooking(bookingId, staffId)
       setBookings((prev) => prev.map((b) => (b.id === bookingId ? updated.data : b)))
-      toast.success(staffId ? 'Personal tilldelad ✓' : 'Tilldelning borttagen')
+      toast.success(staffId ? 'Staff assigned ✓' : 'Assignment removed')
       setSelectedId(null)
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte tilldela.')
+      toast.error(err?.message ?? 'Could not assign.')
     } finally {
       setAssigning(null)
     }
@@ -109,9 +109,9 @@ export default function AdminBookingsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-display text-2xl text-neutral-900">Bokningar</h1>
+          <h1 className="font-display text-2xl text-neutral-900">Bookings</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Månadsvy · dra en bokning till en medarbetare för att tilldela.
+            Monthly view · drag a booking onto a staff member to assign.
           </p>
         </div>
         {/* Month navigation */}
@@ -119,12 +119,12 @@ export default function AdminBookingsPage() {
           <button onClick={() => setMonth(subMonths(month, 1))}
             className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"><ChevronLeft size={16} /></button>
           <span className="text-sm font-semibold text-neutral-800 capitalize min-w-[130px] text-center">
-            {format(month, 'MMMM yyyy', { locale: sv })}
+            {format(month, 'MMMM yyyy', { locale: enGB })}
           </span>
           <button onClick={() => setMonth(addMonths(month, 1))}
             className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"><ChevronRight size={16} /></button>
           <button onClick={() => setMonth(startOfMonth(new Date()))}
-            className="ml-1 text-xs font-medium text-brand-600 hover:bg-brand-50 rounded-lg px-2 py-1.5 transition-colors">Idag</button>
+            className="ml-1 text-xs font-medium text-brand-600 hover:bg-brand-50 rounded-lg px-2 py-1.5 transition-colors">Today</button>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export default function AdminBookingsPage() {
       {selectedId && (
         <div className="flex items-center gap-3 bg-brand-600 text-white rounded-xl px-4 py-2.5 text-sm">
           <Info size={15} />
-          <span>Bokning vald — klicka på en medarbetare till höger för att tilldela.</span>
+          <span>Booking selected — click a staff member on the right to assign.</span>
           <button onClick={() => setSelectedId(null)} className="ml-auto p-1 hover:bg-white/20 rounded-lg"><X size={14} /></button>
         </div>
       )}
@@ -207,13 +207,13 @@ export default function AdminBookingsPage() {
         <aside className="space-y-2 lg:sticky lg:top-4">
           <div className="bg-white border border-neutral-200 rounded-2xl p-3">
             <p className="text-xs font-semibold text-neutral-700 mb-1 flex items-center gap-1.5">
-              <CalendarDays size={13} /> Medarbetare
+              <CalendarDays size={13} /> Staff
             </p>
-            <p className="text-[11px] text-neutral-400 mb-3">Dra en bokning hit — eller välj en bokning och klicka här.</p>
+            <p className="text-[11px] text-neutral-400 mb-3">Drag a booking here — or select a booking and click here.</p>
 
             <div className="space-y-2">
               {workers.length === 0 && (
-                <p className="text-xs text-neutral-400">Inga aktiva medarbetare. Lägg till under "Personal".</p>
+                <p className="text-xs text-neutral-400">No active staff. Add them under "Staff".</p>
               )}
               {workers.map((w) => {
                 const jobs = monthBookings.filter((b) => b.staff?.id === w.id && b.status !== 'cancelled').length
@@ -237,7 +237,7 @@ export default function AdminBookingsPage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-neutral-800 truncate">{w.fullName}</p>
                       <p className="text-[11px] text-neutral-400">
-                        {w.role === 'coordinator' ? 'Arbetsledare' : 'Städare'} · {jobs} jobb
+                        {w.role === 'coordinator' ? 'Supervisor' : 'Cleaner'} · {jobs} jobs
                       </p>
                     </div>
                   </div>
@@ -259,7 +259,7 @@ export default function AdminBookingsPage() {
                 : 'border-neutral-200 text-neutral-400',
             )}
           >
-            Ta bort tilldelning{unassignedCount ? ` · ${unassignedCount} ej tilldelade` : ''}
+            Remove assignment{unassignedCount ? ` · ${unassignedCount} unassigned` : ''}
           </div>
         </aside>
       </div>

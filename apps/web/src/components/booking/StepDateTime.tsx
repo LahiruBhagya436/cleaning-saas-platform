@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format, startOfDay, isBefore, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { bookingsApi } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -62,7 +62,7 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-sans font-medium text-neutral-900">Välj datum & tid</h2>
+      <h2 className="font-sans font-medium text-neutral-900">Choose date & time</h2>
 
       {/* Calendar */}
       <div className="bg-white border border-neutral-200 rounded-xl p-5">
@@ -77,7 +77,7 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
             <ChevronLeft size={18} />
           </button>
           <h3 className="font-medium text-neutral-900 capitalize">
-            {format(month, 'MMMM yyyy', { locale: sv })}
+            {format(month, 'MMMM yyyy', { locale: enGB })}
           </h3>
           <button
             onClick={() => setMonth(addMonths(month, 1))}
@@ -89,7 +89,7 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
 
         {/* Weekday headers */}
         <div className="grid grid-cols-7 mb-2">
-          {['Mån','Tis','Ons','Tor','Fre','Lör','Sön'].map((d) => (
+          {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d) => (
             <div key={d} className="text-center text-xs text-neutral-400 font-medium py-1">
               {d}
             </div>
@@ -132,9 +132,9 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
       {selectedDay && (
         <div>
           <h3 className="text-sm font-medium text-neutral-900 mb-3">
-            Lediga tider —{' '}
+            Available times —{' '}
             <span className="text-brand-600 capitalize">
-              {format(selectedDay, 'EEEE d MMMM', { locale: sv })}
+              {format(selectedDay, 'EEEE d MMMM', { locale: enGB })}
             </span>
           </h3>
 
@@ -147,10 +147,10 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
           ) : slots.filter(s => s.available).length === 0 ? (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
               <p className="text-sm text-amber-700 font-medium mb-1">
-                Inga lediga tider denna dag
+                No available times this day
               </p>
               <p className="text-xs text-amber-600">
-                Välj ett annat datum — vi har tillgängliga städare de flesta vardagar.
+                Choose another date — we have available cleaners most weekdays.
               </p>
             </div>
           ) : (
@@ -174,7 +174,7 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
                     >
                       <span>{startTime}–{endTime}</span>
                       <span className={cn('text-[10px]', isActive ? 'text-brand-100' : 'text-neutral-400')}>
-                        Start–slut
+                        Start–end
                       </span>
                     </button>
                   )
@@ -190,14 +190,14 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
           <span className="text-2xl">✅</span>
           <div>
             <p className="text-sm font-medium text-teal-800">
-              {format(new Date(data.scheduledAt), "EEEE d MMMM", { locale: sv })}
+              {format(new Date(data.scheduledAt), "EEEE d MMMM", { locale: enGB })}
               {' · '}
               {format(new Date(data.scheduledAt), 'HH:mm')}
               {'–'}
               {format(new Date(new Date(data.scheduledAt).getTime() + data.durationMinutes * 60000), 'HH:mm')}
             </p>
             <p className="text-xs text-teal-600">
-              {data.durationMinutes / 60} timmar · {data.serviceName}
+              {data.durationMinutes / 60} hours · {data.serviceName}
             </p>
           </div>
         </div>
@@ -207,7 +207,7 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft size={16} />
-          Tillbaka
+          Back
         </Button>
         <Button
           className="flex-1 group"
@@ -215,7 +215,7 @@ export function StepDateTime({ data, update, onNext, onBack }: Props) {
           disabled={!canContinue}
           onClick={onNext}
         >
-          Granska & bekräfta
+          Review & confirm
           <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
         </Button>
       </div>

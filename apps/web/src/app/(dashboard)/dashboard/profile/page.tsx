@@ -20,16 +20,16 @@ const profileSchema = z.object({
     .string()
     .optional()
     .refine((v) => !v || /^\d{6,8}[-+]?\d{4}$/.test(v.replace(/\s/g, '')), {
-      message: 'Format: ÅÅMMDD-XXXX eller ÅÅÅÅMMDD-XXXX',
+      message: 'Format: YYMMDD-XXXX or YYYYMMDD-XXXX',
     }),
 })
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'Ange nuvarande lösenord'),
+  currentPassword: z.string().min(1, 'Enter current password'),
   newPassword:     z.string().min(8, 'Minst 8 tecken'),
   confirmPassword: z.string(),
 }).refine((d) => d.newPassword === d.confirmPassword, {
-  message: 'Lösenorden matchar inte',
+  message: 'Passwords do not match',
   path: ['confirmPassword'],
 })
 
@@ -37,9 +37,9 @@ type ProfileForm   = z.infer<typeof profileSchema>
 type PasswordForm  = z.infer<typeof passwordSchema>
 
 const TABS = [
-  { key: 'profile',  label: 'Konto',       icon: User },
-  { key: 'password', label: 'Lösenord',    icon: Lock },
-  { key: 'notifs',   label: 'Notiser',     icon: Bell },
+  { key: 'profile',  label: 'Account',       icon: User },
+  { key: 'password', label: 'Password',    icon: Lock },
+  { key: 'notifs',   label: 'Notifications',     icon: Bell },
 ] as const
 type Tab = typeof TABS[number]['key']
 
@@ -100,10 +100,10 @@ export default function ProfilePage() {
   const onPasswordSave = async (data: PasswordForm) => {
     try {
       await authApi.changePassword(data.currentPassword, data.newPassword)
-      toast.success('Lösenord uppdaterat.')
+      toast.success('Password updated.')
       resetPw()
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte uppdatera lösenordet.')
+      toast.error(err?.message ?? 'Could not update the password.')
     }
   }
 
@@ -153,7 +153,7 @@ export default function ProfilePage() {
           <h2 className="font-medium text-neutral-900 mb-5">Personuppgifter</h2>
           <form onSubmit={handleP(onProfileSave)} className="space-y-4">
             <div>
-              <Label htmlFor="fullName">Fullständigt namn</Label>
+              <Label htmlFor="fullName">Full name</Label>
               <Input
                 id="fullName"
                 placeholder="Anna Andersson"
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                 className="bg-neutral-50 text-neutral-400 cursor-not-allowed"
               />
               <p className="mt-1 text-xs text-neutral-400">
-                E-postadressen kan inte ändras. Kontakta support vid behov.
+                The email address cannot be changed. Contact support if needed.
               </p>
             </div>
 
@@ -193,12 +193,12 @@ export default function ProfilePage() {
 
             <div>
               <Label htmlFor="personnummer">
-                Personnummer{' '}
-                <span className="text-neutral-400 font-normal">(krävs för RUT-avdrag)</span>
+                Personal ID{' '}
+                <span className="text-neutral-400 font-normal">(required for RUT deduction)</span>
               </Label>
               <Input
                 id="personnummer"
-                placeholder="ÅÅÅÅMMDD-XXXX"
+                placeholder="YYYYMMDD-XXXX"
                 error={errP.personnummer?.message}
                 {...regP('personnummer')}
               />
@@ -206,11 +206,11 @@ export default function ProfilePage() {
                 <p className="mt-1 text-xs text-red-500">{errP.personnummer.message}</p>
               ) : hasPersonnummer ? (
                 <p className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600">
-                  <ShieldCheck size={12} /> Personnummer registrerat och krypterat. Lämna fältet tomt om du inte vill ändra det.
+                  <ShieldCheck size={12} /> Personal ID registered and encrypted. Leave the field blank if you don't want to change it.
                 </p>
               ) : (
                 <p className="mt-1.5 text-xs text-neutral-400">
-                  Vi behöver detta för att din städfirma ska kunna begära RUT-avdraget från Skatteverket åt dig. Krypteras innan det sparas.
+                  We need this so your cleaning company can claim the RUT deduction from Skatteverket on your behalf. It is encrypted before saving.
                 </p>
               )}
             </div>
@@ -218,7 +218,7 @@ export default function ProfilePage() {
             <div className="pt-2">
               <Button type="submit" loading={submittingP}>
                 <Check size={14} />
-                Spara ändringar
+                Save changes
               </Button>
             </div>
           </form>
@@ -228,13 +228,13 @@ export default function ProfilePage() {
       {/* Tab: Password */}
       {tab === 'password' && (
         <div className="bg-white border border-neutral-200 rounded-xl p-6">
-          <h2 className="font-medium text-neutral-900 mb-1">Ändra lösenord</h2>
+          <h2 className="font-medium text-neutral-900 mb-1">Change password</h2>
           <p className="text-sm text-neutral-500 mb-5">
-            Använd minst 8 tecken. Vi rekommenderar en mix av bokstäver, siffror och symboler.
+            Use at least 8 characters. We recommend a mix of letters, numbers and symbols.
           </p>
           <form onSubmit={handlePw(onPasswordSave)} className="space-y-4">
             <div>
-              <Label htmlFor="currentPassword">Nuvarande lösenord</Label>
+              <Label htmlFor="currentPassword">Current password</Label>
               <div className="relative">
                 <Input
                   id="currentPassword"
@@ -257,7 +257,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <Label htmlFor="newPassword">Nytt lösenord</Label>
+              <Label htmlFor="newPassword">New password</Label>
               <div className="relative">
                 <Input
                   id="newPassword"
@@ -280,7 +280,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword">Bekräfta nytt lösenord</Label>
+              <Label htmlFor="confirmPassword">Confirm new password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -296,7 +296,7 @@ export default function ProfilePage() {
             <div className="pt-2">
               <Button type="submit" loading={submittingPw}>
                 <Lock size={14} />
-                Uppdatera lösenord
+                Update password
               </Button>
             </div>
           </form>
@@ -306,31 +306,31 @@ export default function ProfilePage() {
       {/* Tab: Notifications */}
       {tab === 'notifs' && (
         <div className="bg-white border border-neutral-200 rounded-xl p-6">
-          <h2 className="font-medium text-neutral-900 mb-1">Notifikationsinställningar</h2>
+          <h2 className="font-medium text-neutral-900 mb-1">Notification settings</h2>
           <p className="text-sm text-neutral-500 mb-6">
-            Välj hur du vill bli meddelad om bokningar och fakturor.
+            Choose how you want to be notified about bookings and invoices.
           </p>
 
           <div className="space-y-4">
             {[
               {
-                label: 'Bokningsbekräftelse',
-                desc:  'Få en bekräftelse när din bokning är godkänd.',
+                label: 'Booking confirmation',
+                desc:  'Get a confirmation when your booking is approved.',
                 defaultOn: true,
               },
               {
-                label: 'Påminnelse innan städning',
-                desc:  'Påminnelse 24 timmar och 2 timmar före bokad tid.',
+                label: 'Reminder before cleaning',
+                desc:  'Reminder 24 hours and 2 hours before the booked time.',
                 defaultOn: true,
               },
               {
-                label: 'Faktura skickad',
-                desc:  'Notis när en ny faktura är tillgänglig.',
+                label: 'Invoice sent',
+                desc:  'Notification when a new invoice is available.',
                 defaultOn: true,
               },
               {
-                label: 'Erbjudanden och nyheter',
-                desc:  'Kampanjer och nyheter från Stockholm Cleaning Co.',
+                label: 'Offers and news',
+                desc:  'Promotions and news from Stockholm Cleaning Co.',
                 defaultOn: false,
               },
             ].map(({ label, desc, defaultOn }) => (
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                     type="checkbox"
                     defaultChecked={defaultOn}
                     className="sr-only peer"
-                    onChange={() => toast.success('Inställning sparad.')}
+                    onChange={() => toast.success('Setting saved.')}
                   />
                   <div className="w-9 h-5 bg-neutral-200 peer-focus:ring-2 peer-focus:ring-brand-300 rounded-full peer peer-checked:bg-brand-600 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4" />
                 </label>
@@ -353,9 +353,9 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-6">
-            <Button onClick={() => toast.success('Inställningar sparade.')}>
+            <Button onClick={() => toast.success('Settings saved.')}>
               <Check size={14} />
-              Spara inställningar
+              Save settings
             </Button>
           </div>
         </div>

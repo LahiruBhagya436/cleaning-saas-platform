@@ -5,12 +5,12 @@ import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
 
 const REVIEWS = [
-  { name: 'Anna L.', area: 'Södermalm', rating: 5, text: 'Fantastisk service! Samma städare varje gång och alltid lika noggrann. Kan varmt rekommendera.' },
-  { name: 'Erik S.', area: 'Vasastan', rating: 5, text: 'Bokade flyttstädning och fick tillbaka hela depositionen. Proffsigt jobb från start till slut.' },
-  { name: 'Fatima K.', area: 'Kungsholmen', rating: 5, text: 'Enkel bokning, tydlig prissättning och RUT-avdraget gjorde det riktigt prisvärt.' },
-  { name: 'Johan B.', area: 'Östermalm', rating: 4, text: 'Mycket nöjd med hemstädningen. Enda minus är att det ibland är svårt att få exakt önskad tid.' },
-  { name: 'Maria T.', area: 'Bromma', rating: 5, text: 'Har använt dem i över ett år för veckostädning. Pålitliga och alltid trevliga.' },
-  { name: 'Daniel H.', area: 'Liljeholmen', rating: 5, text: 'Kontorstädning av hög klass. Vårt kontor har aldrig sett bättre ut.' },
+  { name: 'Anna L.', area: 'Södermalm', rating: 5, text: 'Fantastic service! The same cleaner every time and always just as thorough. Can warmly recommend.' },
+  { name: 'Erik S.', area: 'Vasastan', rating: 5, text: 'Booked move-out cleaning and got the entire deposit back. Professional job from start to finish.' },
+  { name: 'Fatima K.', area: 'Kungsholmen', rating: 5, text: 'Easy booking, clear pricing and the RUT deduction made it really affordable.' },
+  { name: 'Johan B.', area: 'Östermalm', rating: 4, text: 'Very happy with the home cleaning. The only downside is that it is sometimes hard to get exactly the time I want.' },
+  { name: 'Maria T.', area: 'Bromma', rating: 5, text: 'Have used them for over a year for weekly cleaning. Reliable and always pleasant.' },
+  { name: 'Daniel H.', area: 'Liljeholmen', rating: 5, text: 'High-class office cleaning. Our office has never looked better.' },
 ]
 
 export default function ReviewsPage() {
@@ -22,7 +22,7 @@ export default function ReviewsPage() {
 
       <section className="bg-white border-b border-neutral-100">
         <div className="container-tight section-pad text-center">
-          <h1 className="font-display text-4xl sm:text-5xl text-neutral-900 mb-4">Vad våra kunder säger</h1>
+          <h1 className="font-display text-4xl sm:text-5xl text-neutral-900 mb-4">What our customers say</h1>
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -58,9 +58,9 @@ export default function ReviewsPage() {
 
       <section className="section-pad bg-brand-600 text-white">
         <div className="container-tight text-center">
-          <h2 className="font-display text-3xl text-white mb-4">Bli vår nästa nöjda kund</h2>
+          <h2 className="font-display text-3xl text-white mb-4">Become our next happy customer</h2>
           <p className="text-brand-200 mb-8 max-w-md mx-auto">
-            Boka din första städning idag och se varför våra kunder stannar år efter år.
+            Book your first cleaning today and see why our customers stay year after year.
           </p>
           <Button size="xl" variant="teal" asChild>
             <Link href="/book">Boka nu <ArrowRight size={18} /></Link>

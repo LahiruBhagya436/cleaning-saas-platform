@@ -7,11 +7,11 @@ import { signOut, useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: '/dashboard',             label: 'Översikt',      icon: Sparkles     },
-  { href: '/dashboard/bookings',    label: 'Bokningar',     icon: CalendarDays },
-  { href: '/dashboard/invoices',    label: 'Fakturor',      icon: FileText     },
-  { href: '/dashboard/properties',  label: 'Mina adresser', icon: MapPin       },
-  { href: '/dashboard/profile',     label: 'Mitt konto',    icon: User         },
+  { href: '/dashboard',             label: 'Overview',      icon: Sparkles     },
+  { href: '/dashboard/bookings',    label: 'Bookings',     icon: CalendarDays },
+  { href: '/dashboard/invoices',    label: 'Invoices',      icon: FileText     },
+  { href: '/dashboard/properties',  label: 'My addresses', icon: MapPin       },
+  { href: '/dashboard/profile',     label: 'My account',    icon: User         },
 ]
 
 const ADMIN_ROLES = ['coordinator', 'admin', 'superadmin']
@@ -81,7 +81,7 @@ export function DashboardSidebar() {
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
         >
           <LogOut size={16} className="text-neutral-400" />
-          Logga ut
+          Log out
         </button>
       </div>
     </aside>

@@ -16,7 +16,7 @@ import { EmptyState } from '@/components/dashboard/EmptyState'
 
 const schema = z.object({
   label:        z.string().max(100).optional(),
-  addressLine1: z.string().min(5, 'Ange fullständig gatuadress'),
+  addressLine1: z.string().min(5, 'Enter your full street address'),
   postalCode:   z.string().min(5, 'Ange postnummer'),
   city:         z.string().min(2, 'Ange stad'),
   floors:       z.coerce.number().int().min(1).default(1),
@@ -42,7 +42,7 @@ export default function PropertiesPage() {
       const res = await propertiesApi.list()
       setProperties(res.data ?? [])
     } catch {
-      toast.error('Kunde inte hämta adresser.')
+      toast.error('Could not load addresses.')
     } finally {
       setLoading(false)
     }
@@ -75,10 +75,10 @@ export default function PropertiesPage() {
     try {
       if (editing) {
         await propertiesApi.update(editing.id, data)
-        toast.success('Adress uppdaterad.')
+        toast.success('Address updated.')
       } else {
         await propertiesApi.create(data)
-        toast.success('Adress tillagd.')
+        toast.success('Address added.')
       }
       setShowForm(false)
       setEditing(null)
@@ -92,7 +92,7 @@ export default function PropertiesPage() {
     setDeleting(id)
     try {
       await propertiesApi.delete(id)
-      toast.success('Adress borttagen.')
+      toast.success('Address removed.')
       fetchProperties()
     } catch (err: any) {
       toast.error(err?.message ?? 'Kunde inte ta bort adress.')
@@ -122,7 +122,7 @@ export default function PropertiesPage() {
         </div>
         <Button size="sm" onClick={openAdd}>
           <Plus size={14} />
-          Lägg till adress
+          Add address
         </Button>
       </div>
 
@@ -131,7 +131,7 @@ export default function PropertiesPage() {
         <div className="bg-white border border-brand-200 rounded-xl p-6 shadow-card">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-sans font-medium text-neutral-900">
-              {editing ? 'Redigera adress' : 'Ny adress'}
+              {editing ? 'Edit address' : 'New address'}
             </h2>
             <button
               onClick={() => { setShowForm(false); setEditing(null) }}
@@ -144,18 +144,18 @@ export default function PropertiesPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Label htmlFor="label">
-                Namn på adressen{' '}
+                Address name{' '}
                 <span className="text-neutral-400 font-normal">(valfritt)</span>
               </Label>
               <Input
                 id="label"
-                placeholder="t.ex. Hem, Sommarstuga"
+                placeholder="e.g. Home, Summer house"
                 {...register('label')}
               />
             </div>
 
             <div>
-              <Label htmlFor="addressLine1">Gatuadress *</Label>
+              <Label htmlFor="addressLine1">Street address *</Label>
               <Input
                 id="addressLine1"
                 placeholder="Drottninggatan 45"
@@ -169,7 +169,7 @@ export default function PropertiesPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="postalCode">Postnummer *</Label>
+                <Label htmlFor="postalCode">Postal code *</Label>
                 <Input
                   id="postalCode"
                   placeholder="111 21"
@@ -181,7 +181,7 @@ export default function PropertiesPage() {
                 )}
               </div>
               <div>
-                <Label htmlFor="city">Stad *</Label>
+                <Label htmlFor="city">City *</Label>
                 <Input
                   id="city"
                   placeholder="Stockholm"
@@ -208,7 +208,7 @@ export default function PropertiesPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="floors">Antal våningar</Label>
+                <Label htmlFor="floors">Number of floors</Label>
                 <Input
                   id="floors"
                   type="number"
@@ -225,7 +225,7 @@ export default function PropertiesPage() {
               </Label>
               <Input
                 id="entryNotes"
-                placeholder="t.ex. portkod 1234, ring på 3 ringen"
+                placeholder="e.g. door code 1234, ring at 3rd"
                 {...register('entryNotes')}
               />
             </div>
@@ -238,7 +238,7 @@ export default function PropertiesPage() {
                 {...register('hasPets')}
               />
               <Label htmlFor="hasPets" className="mb-0 cursor-pointer">
-                Det finns husdjur på adressen
+                There are pets at the address
               </Label>
             </div>
 
@@ -252,7 +252,7 @@ export default function PropertiesPage() {
               </Button>
               <Button type="submit" loading={isSubmitting} className="flex-1">
                 <Check size={14} />
-                {editing ? 'Spara ändringar' : 'Spara adress'}
+                {editing ? 'Save changes' : 'Save address'}
               </Button>
             </div>
           </form>
@@ -263,9 +263,9 @@ export default function PropertiesPage() {
       {properties.length === 0 && !showForm ? (
         <EmptyState
           icon={MapPin}
-          title="Inga adresser sparade"
-          description="Lägg till din hemadress så kan du boka städning snabbare nästa gång."
-          action={{ label: 'Lägg till adress', onClick: openAdd }}
+          title="No addresses saved"
+          description="Add your home address so you can book cleaning faster next time."
+          action={{ label: 'Add address', onClick: openAdd }}
         />
       ) : (
         <div className="space-y-3">
@@ -286,7 +286,7 @@ export default function PropertiesPage() {
                   {property.isPrimary && (
                     <span className="inline-flex items-center gap-1 text-2xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">
                       <Star size={9} className="fill-amber-500 text-amber-500" />
-                      Primär
+                      Primary
                     </span>
                   )}
                 </div>
@@ -298,7 +298,7 @@ export default function PropertiesPage() {
                     <span className="text-xs text-neutral-400">{property.areaSqm} m²</span>
                   )}
                   {property.floors > 1 && (
-                    <span className="text-xs text-neutral-400">{property.floors} våningar</span>
+                    <span className="text-xs text-neutral-400">{property.floors} floors</span>
                   )}
                   {property.hasPets && (
                     <span className="text-xs text-neutral-400">🐾 Husdjur</span>
@@ -315,7 +315,7 @@ export default function PropertiesPage() {
                 <button
                   onClick={() => openEdit(property)}
                   className="p-2 rounded-lg text-neutral-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
-                  title="Redigera"
+                  title="Edit"
                 >
                   <Pencil size={15} />
                 </button>
@@ -323,7 +323,7 @@ export default function PropertiesPage() {
                   onClick={() => handleDelete(property.id)}
                   disabled={deleting === property.id}
                   className="p-2 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
-                  title="Ta bort"
+                  title="Delete"
                 >
                   {deleting === property.id
                     ? <Loader2 size={15} className="animate-spin" />

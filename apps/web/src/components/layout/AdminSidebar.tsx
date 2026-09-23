@@ -7,10 +7,10 @@ import { Sparkles, LayoutDashboard, CalendarDays, Users, LogOut, ReceiptText, Ar
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: '/admin',            label: 'Översikt',    icon: LayoutDashboard },
-  { href: '/admin/bookings',   label: 'Bokningar',    icon: CalendarDays    },
-  { href: '/admin/workers',    label: 'Personal',     icon: Users           },
-  { href: '/admin/rut-claims', label: 'RUT-avdrag',   icon: ReceiptText     },
+  { href: '/admin',            label: 'Overview',    icon: LayoutDashboard },
+  { href: '/admin/bookings',   label: 'Bookings',    icon: CalendarDays    },
+  { href: '/admin/workers',    label: 'Staff',     icon: Users           },
+  { href: '/admin/rut-claims', label: 'RUT claims',   icon: ReceiptText     },
 ]
 
 export function AdminSidebar() {
@@ -73,14 +73,14 @@ export function AdminSidebar() {
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
         >
           <Sparkles size={16} className="text-neutral-400" />
-          Kunddashboard
+          Customer dashboard
         </Link>
         <button
           onClick={() => signOut({ callbackUrl: '/' })}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
         >
           <LogOut size={16} className="text-neutral-400" />
-          Logga ut
+          Log out
         </button>
       </div>
     </aside>

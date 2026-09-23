@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import { X, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/index'
@@ -14,11 +14,11 @@ interface Props {
 }
 
 const CANCEL_REASONS = [
-  'Planer ändrades',
-  'Hittat annan leverantör',
-  'Ekonomiska skäl',
-  'Felinmatning vid bokning',
-  'Annat',
+  'Plans changed',
+  'Found another provider',
+  'Financial reasons',
+  'Booking entry error',
+  'Other',
 ]
 
 export function CancelModal({ booking, onConfirm, onClose }: Props) {
@@ -60,27 +60,27 @@ export function CancelModal({ booking, onConfirm, onClose }: Props) {
         </div>
 
         <h2 className="font-display text-xl text-neutral-900 mb-1">
-          Avboka städning?
+          Cancel cleaning?
         </h2>
         <p className="text-sm text-neutral-500 mb-5">
-          {format(scheduledDate, "EEEE d MMMM 'kl.' HH:mm", { locale: sv })}
+          {format(scheduledDate, "EEEE d MMMM 'at' HH:mm", { locale: enGB })}
         </p>
 
         {/* Too late warning */}
         {tooLate && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5">
             <p className="text-xs font-medium text-amber-800">
-              ⚠️ Avbokning inom 24 timmar
+              ⚠️ Cancellation within 24 hours
             </p>
             <p className="text-xs text-amber-600 mt-1">
-              Avbokning inom 24 timmar kan medföra en avbokningsavgift.
+              Cancelling within 24 hours may incur a cancellation fee.
             </p>
           </div>
         )}
 
         {/* Reason */}
         <div className="mb-5">
-          <Label className="mb-2">Anledning till avbokning</Label>
+          <Label className="mb-2">Reason for cancellation</Label>
           <div className="space-y-2">
             {CANCEL_REASONS.map((r) => (
               <button
@@ -101,7 +101,7 @@ export function CancelModal({ booking, onConfirm, onClose }: Props) {
         {/* Actions */}
         <div className="flex gap-3">
           <Button variant="outline" onClick={onClose} className="flex-1">
-            Behåll bokning
+            Keep booking
           </Button>
           <Button
             variant="destructive"
@@ -110,7 +110,7 @@ export function CancelModal({ booking, onConfirm, onClose }: Props) {
             disabled={!reason || confirming}
             className="flex-1 bg-red-600 hover:bg-red-700 text-white"
           >
-            Avboka
+            Cancel
           </Button>
         </div>
       </div>

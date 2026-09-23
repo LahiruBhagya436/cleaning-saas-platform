@@ -67,7 +67,7 @@ invoiceRoutes.post('/:id/checkout', async (req: Request, res: Response, next: Ne
           unit_amount: amountOre,
           product_data: {
             name:        `Faktura ${invoice.invoiceNumber}`,
-            description: invoice.booking.items.map(i => i.service.nameSv).join(', ') || 'Städtjänst',
+            description: invoice.booking.items.map(i => i.service.nameSv).join(', ') || 'Cleaning service',
           },
         },
         quantity: 1,

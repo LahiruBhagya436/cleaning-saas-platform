@@ -28,7 +28,7 @@ export default function BookingsPage() {
       const res = await bookingsApi.list({ limit: 50 })
       setBookings(res.data ?? [])
     } catch {
-      toast.error('Kunde inte hämta bokningar.')
+      toast.error('Could not load bookings.')
     } finally {
       setLoading(false)
     }
@@ -39,19 +39,19 @@ export default function BookingsPage() {
   const handleCancel = async (bookingId: string, reason: string) => {
     try {
       await bookingsApi.cancel(bookingId, reason)
-      toast.success('Bokning avbokad.')
+      toast.success('Booking cancelled.')
       setCancelTarget(null)
       fetchBookings()
     } catch (err: any) {
-      toast.error(err?.message ?? 'Kunde inte avboka.')
+      toast.error(err?.message ?? 'Could not cancel.')
     }
   }
 
   const FILTERS = [
-    { key: 'all',         label: 'Alla' },
-    { key: 'confirmed',   label: 'Bekräftade' },
-    { key: 'completed',   label: 'Avslutade' },
-    { key: 'cancelled',   label: 'Avbokade' },
+    { key: 'all',         label: 'All' },
+    { key: 'confirmed',   label: 'Confirmed' },
+    { key: 'completed',   label: 'Completed' },
+    { key: 'cancelled',   label: 'Cancelled' },
   ]
 
   const filtered = filter === 'all'
@@ -75,7 +75,7 @@ export default function BookingsPage() {
         <Button size="sm" asChild>
           <Link href="/book">
             <Plus size={14} />
-            Ny bokning
+            New booking
           </Link>
         </Button>
       </div>
@@ -83,9 +83,9 @@ export default function BookingsPage() {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Kommande',  value: upcoming.length,          color: 'text-brand-600' },
-          { label: 'Avslutade', value: completed.length,         color: 'text-teal-600'  },
-          { label: 'Totalt',    value: bookings.length,          color: 'text-neutral-800'},
+          { label: 'Upcoming',  value: upcoming.length,          color: 'text-brand-600' },
+          { label: 'Completed', value: completed.length,         color: 'text-teal-600'  },
+          { label: 'Total',    value: bookings.length,          color: 'text-neutral-800'},
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-white border border-neutral-200 rounded-xl p-4 text-center">
             <p className={`font-display text-3xl ${color}`}>{value}</p>
@@ -119,9 +119,9 @@ export default function BookingsPage() {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
-          title="Inga bokningar hittades"
-          description="Du har inga bokningar i den här kategorin ännu."
-          action={{ label: 'Boka städning', href: '/book' }}
+          title="No bookings found"
+          description="You have no bookings in this category yet."
+          action={{ label: 'Book cleaning', href: '/book' }}
         />
       ) : (
         <div className="space-y-3">
@@ -144,7 +144,7 @@ export default function BookingsPage() {
                         {status?.label ?? booking.status}
                       </Badge>
                       <span className="text-sm font-medium text-neutral-900">
-                        {booking.items?.[0]?.service?.nameSv ?? 'Städning'}
+                        {booking.items?.[0]?.service?.nameSv ?? 'Cleaning'}
                       </span>
                     </div>
 
@@ -159,7 +159,7 @@ export default function BookingsPage() {
                       <div className="flex items-center gap-1.5 text-xs text-neutral-500">
                         <Clock size={12} />
                         <span>
-                          {format(date, 'HH:mm')} · {booking.durationMinutes / 60} tim
+                          {format(date, 'HH:mm')} · {booking.durationMinutes / 60} hrs
                         </span>
                       </div>
                       {booking.property && (
@@ -193,19 +193,19 @@ export default function BookingsPage() {
                         className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 transition-colors"
                       >
                         <X size={12} />
-                        Avboka
+                        Cancel
                       </button>
                     )}
                     {booking.status === 'completed' && (
                       <Button size="sm" variant="outline" asChild className="ml-auto">
                         <Link href="/book">
                           <RefreshCw size={12} />
-                          Boka igen
+                          Book again
                         </Link>
                       </Button>
                     )}
                     <Link href={`/dashboard/bookings/${booking.id}`} className="ml-auto flex items-center gap-1 text-xs text-brand-600 hover:underline">
-                      Detaljer <ChevronRight size={12} />
+                      Details <ChevronRight size={12} />
                     </Link>
                   </div>
                 )}

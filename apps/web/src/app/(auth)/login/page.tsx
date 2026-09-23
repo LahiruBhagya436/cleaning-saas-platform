@@ -13,8 +13,8 @@ import { Input, Label } from '@/components/ui/index'
 import { toast } from 'sonner'
 
 const schema = z.object({
-  email:    z.string().email('Ange en giltig e-postadress'),
-  password: z.string().min(1, 'Lösenord krävs'),
+  email:    z.string().email('Enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 })
 type FormData = z.infer<typeof schema>
 
@@ -62,14 +62,14 @@ function LoginForm() {
 
     if (result?.error) {
       if (result.error === 'ServerUnavailable') {
-        toast.error('Servern startar om — vänta några sekunder och försök igen.')
+        toast.error('The server is restarting — wait a few seconds and try again.')
       } else {
-        toast.error('Fel e-post eller lösenord. Försök igen.')
+        toast.error('Wrong email or password. Please try again.')
       }
       return
     }
 
-    toast.success('Inloggad!')
+    toast.success('Logged in!')
 
     // No explicit callbackUrl (i.e. user landed on /login directly, not bounced
     // here from a role-gated page) — route by role so superadmins/company
@@ -103,24 +103,24 @@ function LoginForm() {
       {/* URL-error banners (NextAuth redirects here with ?error=) */}
       {urlError === 'OAuthBackendLinkError' && (
         <div className="mb-5 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-          <strong>Servern startar om.</strong> Vänta 30 sekunder och försök logga in med Google igen.
+          <strong>The server is restarting.</strong> Wait 30 seconds and try logging in with Google again.
         </div>
       )}
       {urlError && urlError !== 'OAuthBackendLinkError' && (
         <div className="mb-5 rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
-          Inloggning misslyckades — försök igen eller logga in med e-post.
+          Login failed — try again or log in with email.
         </div>
       )}
 
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-display text-3xl text-neutral-900 mb-2">
-          Välkommen tillbaka
+          Welcome back
         </h1>
         <p className="text-sm text-neutral-500">
-          Inget konto?{' '}
+          No account?{' '}
           <Link href="/register" className="text-brand-600 font-medium hover:underline">
-            Skapa konto gratis
+            Create a free account
           </Link>
         </p>
       </div>
@@ -139,7 +139,7 @@ function LoginForm() {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        Fortsätt med Google
+        Continue with Google
       </Button>
 
       {/* Divider */}
@@ -148,18 +148,18 @@ function LoginForm() {
           <div className="w-full border-t border-neutral-200" />
         </div>
         <div className="relative flex justify-center text-xs text-neutral-400">
-          <span className="bg-neutral-50 px-3">eller med e-post</span>
+          <span className="bg-neutral-50 px-3">or with email</span>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div>
-          <Label htmlFor="email">E-postadress</Label>
+          <Label htmlFor="email">Email address</Label>
           <Input
             id="email"
             type="email"
-            placeholder="din@email.se"
+            placeholder="you@email.com"
             autoComplete="email"
             error={errors.email?.message}
             {...register('email')}
@@ -171,12 +171,12 @@ function LoginForm() {
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <Label htmlFor="password" className="mb-0">Lösenord</Label>
+            <Label htmlFor="password" className="mb-0">Password</Label>
             <Link
               href="/forgot-password"
               className="text-xs text-brand-600 hover:underline"
             >
-              Glömt lösenord?
+              Forgot password?
             </Link>
           </div>
           <div className="relative">
@@ -208,16 +208,16 @@ function LoginForm() {
           size="lg"
           loading={isSubmitting}
         >
-          Logga in
+          Log in
           <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
         </Button>
       </form>
 
       {/* Demo credentials hint */}
       <div className="mt-6 rounded-lg bg-brand-50 border border-brand-100 p-3">
-        <p className="text-xs font-medium text-brand-700 mb-1.5">Demo-konton</p>
+        <p className="text-xs font-medium text-brand-700 mb-1.5">Demo accounts</p>
         <div className="space-y-1 text-xs text-brand-600">
-          <p>👤 Kund: anna@example.se / Customer123!</p>
+          <p>👤 Customer: anna@example.se / Customer123!</p>
           <p>🔧 Admin: admin@cleaningco.se / Admin123!</p>
         </div>
       </div>

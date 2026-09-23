@@ -16,8 +16,8 @@ export function Navbar() {
     '/dashboard'
   const dashboardLabel =
     role === 'superadmin' ? 'Platform' :
-    role === 'admin' || role === 'coordinator' ? 'Adminpanel' :
-    'Mina bokningar'
+    role === 'admin' || role === 'coordinator' ? 'Admin panel' :
+    'My bookings'
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/90 backdrop-blur-md">
@@ -36,17 +36,17 @@ export function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           <Link href="/services" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
-            Tjänster
+            Services
           </Link>
           <Link href="/pricing" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
-            Priser
+            Pricing
           </Link>
           <Link href="/about" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
-            Om oss
+            About
           </Link>
           <div className="flex items-center gap-2 text-xs font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-            RUT-avdrag — 50% rabatt
+            RUT deduction — 50% off
           </div>
         </div>
 
@@ -58,16 +58,16 @@ export function Navbar() {
                 <Link href={dashboardHref}>{dashboardLabel}</Link>
               </Button>
               <Button variant="outline" size="sm" onClick={() => signOut()}>
-                Logga ut
+                Log out
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Logga in</Link>
+                <Link href="/login">Log in</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href="/book">Boka städning</Link>
+                <Link href="/book">Book cleaning</Link>
               </Button>
             </>
           )}
@@ -86,24 +86,24 @@ export function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-neutral-100 bg-white px-4 py-4 flex flex-col gap-3">
-          <Link href="/services" className="text-sm text-neutral-700 py-2" onClick={() => setMobileOpen(false)}>Tjänster</Link>
-          <Link href="/pricing"  className="text-sm text-neutral-700 py-2" onClick={() => setMobileOpen(false)}>Priser</Link>
-          <Link href="/about"    className="text-sm text-neutral-700 py-2" onClick={() => setMobileOpen(false)}>Om oss</Link>
+          <Link href="/services" className="text-sm text-neutral-700 py-2" onClick={() => setMobileOpen(false)}>Services</Link>
+          <Link href="/pricing"  className="text-sm text-neutral-700 py-2" onClick={() => setMobileOpen(false)}>Pricing</Link>
+          <Link href="/about"    className="text-sm text-neutral-700 py-2" onClick={() => setMobileOpen(false)}>About</Link>
           <div className="border-t border-neutral-100 pt-3 flex flex-col gap-2">
             {session ? (
               <>
                 <Button variant="outline" size="sm" asChild className="w-full">
                   <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>{dashboardLabel}</Link>
                 </Button>
-                <Button variant="ghost" size="sm" className="w-full" onClick={() => signOut()}>Logga ut</Button>
+                <Button variant="ghost" size="sm" className="w-full" onClick={() => signOut()}>Log out</Button>
               </>
             ) : (
               <>
                 <Button variant="outline" size="sm" asChild className="w-full">
-                  <Link href="/login" onClick={() => setMobileOpen(false)}>Logga in</Link>
+                  <Link href="/login" onClick={() => setMobileOpen(false)}>Log in</Link>
                 </Button>
                 <Button size="sm" asChild className="w-full">
-                  <Link href="/book" onClick={() => setMobileOpen(false)}>Boka städning</Link>
+                  <Link href="/book" onClick={() => setMobileOpen(false)}>Book cleaning</Link>
                 </Button>
               </>
             )}
