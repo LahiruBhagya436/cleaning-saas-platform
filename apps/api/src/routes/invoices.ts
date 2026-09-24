@@ -58,6 +58,7 @@ invoiceRoutes.post('/:id/checkout', async (req: Request, res: Response, next: Ne
 
     const session = await stripe.checkout.sessions.create({
       mode:                 'payment',
+      locale:               'en',
       payment_method_types: ['card'],
       customer_email:       req.user!.email,
       client_reference_id:  invoice.id,
@@ -66,8 +67,8 @@ invoiceRoutes.post('/:id/checkout', async (req: Request, res: Response, next: Ne
           currency:    'sek',
           unit_amount: amountOre,
           product_data: {
-            name:        `Faktura ${invoice.invoiceNumber}`,
-            description: invoice.booking.items.map(i => i.service.nameSv).join(', ') || 'Cleaning service',
+            name:        `Invoice ${invoice.invoiceNumber}`,
+            description: invoice.booking.items.map(i => i.service.name).join(', ') || 'Cleaning service',
           },
         },
         quantity: 1,
